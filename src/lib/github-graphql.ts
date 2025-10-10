@@ -118,11 +118,12 @@ export class GitHubAPI {
     });
   }
 
-  async fetchAvailableIssues(owner: string, repo: string): Promise<GitHubIssue[]> {
+  async fetchAvailableIssues(owner: string, repo: string): Promise<{ issues: GitHubIssue[]; rateLimit: { remaining: number; resetAt: string } }> {
     // If no token, use REST API fallback
     if (!this.token) {
       console.log('✅ No token provided, using REST API (60 requests/hour)');
-      return this.fetchIssuesViaREST(owner, repo);
+      const issues = await this.fetchIssuesViaREST(owner, repo);
+      return { issues, rateLimit: { remaining: 60, resetAt: new Date().toISOString() } };
     }
 
     console.log('🔑 Token provided, attempting GraphQL API (5000 requests/hour)');
@@ -130,6 +131,7 @@ export class GitHubAPI {
     let allIssues: GitHubIssue[] = [];
     let hasNextPage = true;
     let cursor: string | null = null;
+    let lastRateLimit = { remaining: 0, resetAt: '' };
 
     try {
       // Limit to 3 pages (300 issues) for faster loading
@@ -144,6 +146,9 @@ export class GitHubAPI {
         });
 
         const { issues } = data.repository;
+
+        // Store rate limit from response
+        lastRateLimit = data.rateLimit;
 
         // Filter out issues that have linked PRs
         const issuesWithoutPRs = issues.nodes.filter(issue => {
@@ -161,12 +166,14 @@ export class GitHubAPI {
       }
 
       console.log(`✅ GraphQL: Found ${allIssues.length} unassigned issues without PRs`);
-      return allIssues;
+      console.log(`⚡ Rate limit: ${lastRateLimit.remaining} requests remaining`);
+      return { issues: allIssues, rateLimit: lastRateLimit };
     } catch (error: any) {
       // Handle authentication errors - try REST API fallback
       if (error.response?.status === 401 || error.response?.status === 403) {
         console.log('⚠️ GraphQL authentication failed (403), falling back to REST API...');
-        return this.fetchIssuesViaREST(owner, repo);
+        const issues = await this.fetchIssuesViaREST(owner, repo);
+        return { issues, rateLimit: { remaining: 60, resetAt: new Date().toISOString() } };
       }
 
       if (error.response?.errors) {

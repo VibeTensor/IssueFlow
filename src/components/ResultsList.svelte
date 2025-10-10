@@ -70,9 +70,9 @@
     try {
       loadingMessage = `Fetching issues from ${parsed.owner}/${parsed.repo}...`;
       const api = new GitHubAPI(githubToken || undefined);
-      issues = await api.fetchAvailableIssues(parsed.owner, parsed.repo);
-      loadingMessage = 'Updating rate limit...';
-      await updateRateLimit();
+      const result = await api.fetchAvailableIssues(parsed.owner, parsed.repo);
+      issues = result.issues;
+      rateLimit = result.rateLimit;
 
       if (issues.length === 0) {
         error = 'No unassigned issues found. Try another repository or all issues may have PRs.';
