@@ -1,6 +1,6 @@
-# GitHub Issues Finder
+# IssueFlow
 
-Find unassigned GitHub issues without pull requests - perfect for open-source contributors!
+Find unassigned open GitHub issues without pull requests - your gateway to open-source contribution!
 
 ## Features
 
@@ -9,6 +9,11 @@ Find unassigned GitHub issues without pull requests - perfect for open-source co
   - ✅ Unassigned
   - ✅ No linked pull requests
 
+- **Multiple Authentication Options**:
+  - 🔐 **GitHub OAuth** - Sign in with GitHub (Device Flow, no backend needed!)
+  - 🔑 **Personal Access Token** - Manual token input
+  - 🌐 **No Auth** - Use without signing in (REST API fallback)
+
 - **Optimized Performance**: Built with 2025's best tech
   - Astro 5.x (0 KB JavaScript for static content)
   - Svelte (3KB runtime for interactive components)
@@ -16,8 +21,8 @@ Find unassigned GitHub issues without pull requests - perfect for open-source co
   - GitHub GraphQL API (45% faster than REST)
 
 - **Rate Limit Friendly**:
-  - 60 requests/hour without token
-  - 5000 requests/hour with GitHub token
+  - 60 requests/hour without token (REST API)
+  - 5000 requests/hour with GitHub OAuth or token (GraphQL API)
   - Token stored locally only (privacy-first)
 
 ## Quick Start
@@ -57,21 +62,27 @@ npm run preview
 
 ## Usage
 
-1. Paste a GitHub repository URL (e.g., `https://github.com/facebook/react`)
-2. (Optional) Add your GitHub personal access token for higher rate limits
-3. Click "Find Available Issues"
-4. Browse filtered issues ready to work on!
+### Option 1: With GitHub OAuth (Recommended) 🔐
 
-## GitHub Token (Optional)
+1. Click **"Sign in with GitHub"**
+2. Copy the code shown
+3. Authorize the app on GitHub
+4. Paste a repository URL and start searching!
 
-To create a GitHub token:
+**Setup**: See [OAUTH_SETUP.md](./OAUTH_SETUP.md) for configuration instructions.
 
-1. Go to https://github.com/settings/tokens
-2. Generate new token (classic)
-3. Select `public_repo` scope
-4. Copy token and paste in the app
+### Option 2: With Personal Access Token 🔑
 
-**Privacy Note**: Your token is stored only in your browser's localStorage and never sent to any server except GitHub's API.
+1. Create a [GitHub token](https://github.com/settings/tokens/new?description=GitHub%20Issues%20Finder&scopes=public_repo) (select `public_repo` scope)
+2. Paste the token in the app
+3. Paste a repository URL and start searching!
+
+### Option 3: Without Authentication 🌐
+
+1. Just paste a repository URL and click "Find Available Issues"
+2. Works immediately with 60 requests/hour limit
+
+**Privacy Note**: All authentication is handled locally in your browser. Tokens are never sent to any server except GitHub's API.
 
 ## Deployment
 

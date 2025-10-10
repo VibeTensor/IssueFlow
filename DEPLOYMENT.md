@@ -14,7 +14,7 @@
 ### Step-by-Step Deployment
 
 1. **Push to GitHub** ✅ (Already done!)
-   - Repository: https://github.com/ascender1729/git-issues-finder
+   - Repository: https://github.com/ascender1729/IssueFlow
 
 2. **Login to Cloudflare**
    - Go to: https://dash.cloudflare.com/
@@ -24,13 +24,13 @@
    - Click "Workers & Pages" in left sidebar
    - Click "Create" → "Pages" → "Connect to Git"
    - Click "Connect GitHub" and authorize Cloudflare
-   - Select repository: `ascender1729/git-issues-finder`
+   - Select repository: `ascender1729/IssueFlow`
    - Click "Begin setup"
 
 4. **Configure Build Settings**
    ```
-   Project name: git-issues-finder (or custom name)
-   Production branch: master
+   Project name: issueflow (or custom name)
+   Production branch: main
    Framework preset: Astro
    Build command: npm run build
    Build output directory: dist
@@ -40,7 +40,7 @@
 5. **Deploy!**
    - Click "Save and Deploy"
    - Wait 2-3 minutes for first build
-   - You'll get a URL like: `https://git-issues-finder.pages.dev`
+   - You'll get a URL like: `https://issueflow.pages.dev`
 
 6. **Custom Domain (Optional)**
    - Go to project → Custom domains
@@ -48,7 +48,7 @@
    - Update DNS records as instructed
 
 ### Auto-Deployment
-Every push to `master` branch automatically triggers a new deployment!
+Every push to `main` branch automatically triggers a new deployment!
 
 ---
 
@@ -134,9 +134,42 @@ Every push to `master` branch automatically triggers a new deployment!
 
 ## Environment Variables
 
-None required! The app runs 100% client-side.
+### Optional: GitHub OAuth Configuration
 
-Users add their own GitHub tokens directly in the browser (stored in localStorage only).
+To enable GitHub OAuth Device Flow (recommended for best user experience):
+
+1. **Create GitHub OAuth App** (see [OAUTH_SETUP.md](./OAUTH_SETUP.md))
+   - Go to: https://github.com/settings/developers
+   - Click "New OAuth App"
+   - Fill in details (Homepage URL: your deployed URL)
+   - Copy the Client ID
+
+2. **Set Environment Variable on Platform**
+
+   **Cloudflare Pages:**
+   - Go to project → Settings → Environment variables
+   - Click "Add variable"
+   - Name: `PUBLIC_GITHUB_CLIENT_ID`
+   - Value: `your_github_client_id`
+   - Environment: Production
+   - Click "Save" and redeploy
+
+   **Vercel:**
+   - Go to project → Settings → Environment Variables
+   - Name: `PUBLIC_GITHUB_CLIENT_ID`
+   - Value: `your_github_client_id`
+   - Click "Save" and redeploy
+
+   **Netlify:**
+   - Go to Site settings → Environment variables
+   - Click "Add a variable"
+   - Key: `PUBLIC_GITHUB_CLIENT_ID`
+   - Value: `your_github_client_id`
+   - Click "Save" and redeploy
+
+**Note:** OAuth is completely optional! The app works without it:
+- **Without OAuth**: Users can use personal access tokens or no authentication (60 req/hour)
+- **With OAuth**: Users can sign in with GitHub for better rate limits (5000 req/hour)
 
 ---
 

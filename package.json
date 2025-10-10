@@ -1,7 +1,7 @@
 {
-  "name": "lunar-light",
+  "name": "issueflow",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -13,6 +13,7 @@
     "@unocss/astro": "^66.5.3",
     "astro": "^5.14.3",
     "graphql-request": "^7.2.0",
+    "rough-notation": "^0.5.1",
     "svelte": "^5.39.11",
     "unocss": "^66.5.3"
   }

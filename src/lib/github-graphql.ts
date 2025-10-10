@@ -37,11 +37,11 @@ export interface IssuesResponse {
       totalCount: number;
       nodes: GitHubIssue[];
     };
-    rateLimit: {
-      limit: number;
-      remaining: number;
-      resetAt: string;
-    };
+  };
+  rateLimit: {
+    limit: number;
+    remaining: number;
+    resetAt: string;
   };
 }
 
@@ -98,31 +98,45 @@ query FindAvailableIssues($owner: String!, $repo: String!, $cursor: String) {
         }
       }
     }
-    rateLimit {
-      limit
-      remaining
-      resetAt
-    }
+  }
+  rateLimit {
+    limit
+    remaining
+    resetAt
   }
 }
 `;
 
 export class GitHubAPI {
   private client: GraphQLClient;
+  private token?: string;
 
   constructor(token?: string) {
+    this.token = token;
     this.client = new GraphQLClient(GITHUB_GRAPHQL_ENDPOINT, {
       headers: token ? { Authorization: `Bearer ${token}` } : {}
     });
   }
 
   async fetchAvailableIssues(owner: string, repo: string): Promise<GitHubIssue[]> {
+    // If no token, use REST API fallback
+    if (!this.token) {
+      console.log('✅ No token provided, using REST API (60 requests/hour)');
+      return this.fetchIssuesViaREST(owner, repo);
+    }
+
+    console.log('🔑 Token provided, attempting GraphQL API (5000 requests/hour)');
+
     let allIssues: GitHubIssue[] = [];
     let hasNextPage = true;
     let cursor: string | null = null;
 
     try {
-      while (hasNextPage) {
+      // Limit to 3 pages (300 issues) for faster loading
+      let pageCount = 0;
+      const maxPages = 3;
+
+      while (hasNextPage && pageCount < maxPages) {
         const data = await this.client.request<IssuesResponse>(QUERY, {
           owner,
           repo,
@@ -141,18 +155,105 @@ export class GitHubAPI {
 
         hasNextPage = issues.pageInfo.hasNextPage;
         cursor = issues.pageInfo.endCursor;
+        pageCount++;
 
-        // Limit to prevent excessive API calls (max 500 issues)
-        if (allIssues.length >= 500) break;
+        console.log(`📄 Fetched page ${pageCount}/${maxPages}, found ${issuesWithoutPRs.length} issues (${allIssues.length} total)`);
       }
 
+      console.log(`✅ GraphQL: Found ${allIssues.length} unassigned issues without PRs`);
       return allIssues;
     } catch (error: any) {
+      // Handle authentication errors - try REST API fallback
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        console.log('⚠️ GraphQL authentication failed (403), falling back to REST API...');
+        return this.fetchIssuesViaREST(owner, repo);
+      }
+
       if (error.response?.errors) {
         const errorMsg = error.response.errors[0]?.message || 'GitHub API error';
         throw new Error(errorMsg);
       }
+
       throw new Error(`Failed to fetch issues: ${error.message}`);
+    }
+  }
+
+  // REST API fallback for unauthenticated access (optimized - no timeline checks)
+  private async fetchIssuesViaREST(owner: string, repo: string): Promise<GitHubIssue[]> {
+    console.log(`🌐 Fetching issues from ${owner}/${repo} via REST API (Fast mode - skipping PR checks)...`);
+    const allIssues: GitHubIssue[] = [];
+    let page = 1;
+    const perPage = 100;
+
+    try {
+      // Only fetch first 2 pages (200 issues) for speed
+      while (page <= 2) {
+        const response = await fetch(
+          `https://api.github.com/repos/${owner}/${repo}/issues?state=open&per_page=${perPage}&page=${page}&assignee=none`,
+          {
+            headers: this.token ? { Authorization: `Bearer ${this.token}` } : {}
+          }
+        );
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Repository not found. Please check the URL.');
+          }
+          if (response.status === 403) {
+            const rateLimitRemaining = response.headers.get('x-ratelimit-remaining');
+            const rateLimitReset = response.headers.get('x-ratelimit-reset');
+
+            if (rateLimitRemaining === '0') {
+              const resetTime = rateLimitReset
+                ? new Date(parseInt(rateLimitReset) * 1000).toLocaleTimeString()
+                : 'soon';
+              throw new Error(
+                `GitHub API rate limit exceeded. ` +
+                `Without authentication, you have 60 requests per hour. ` +
+                `Rate limit resets at ${resetTime}. ` +
+                `Sign in with GitHub or add a personal access token for 5000 requests/hour.`
+              );
+            }
+            throw new Error('GitHub API access denied (403). Please try authenticating with GitHub or using a personal access token.');
+          }
+          throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+        }
+
+        const issues = await response.json();
+
+        if (issues.length === 0) break;
+
+        // Filter out pull requests (they come as issues in REST API)
+        const actualIssues = issues.filter((issue: any) => !issue.pull_request);
+
+        // Convert REST format - Skip slow timeline checks for speed
+        for (const issue of actualIssues) {
+          allIssues.push({
+            number: issue.number,
+            title: issue.title,
+            url: issue.html_url,
+            createdAt: issue.created_at,
+            updatedAt: issue.updated_at,
+            comments: { totalCount: issue.comments },
+            labels: {
+              nodes: issue.labels.map((label: any) => ({
+                name: label.name,
+                color: label.color,
+                description: label.description
+              }))
+            },
+            timelineItems: { nodes: [] }
+          });
+        }
+
+        if (issues.length < perPage) break;
+        page++;
+      }
+
+      console.log(`✅ REST API: Found ${allIssues.length} unassigned issues (Note: PR filtering only available with token)`);
+      return allIssues;
+    } catch (error: any) {
+      throw new Error(`Failed to fetch issues via REST API: ${error.message}`);
     }
   }
 
