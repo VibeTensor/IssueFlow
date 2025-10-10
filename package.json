@@ -1,7 +1,29 @@
 {
   "name": "issueflow",
-  "type": "module",
   "version": "1.0.0",
+  "description": "Find unassigned open GitHub issues without pull requests - your gateway to open-source contribution",
+  "type": "module",
+  "author": "ascender1729 <https://github.com/ascender1729>",
+  "license": "MIT",
+  "homepage": "https://issueflow.pages.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ascender1729/IssueFlow.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ascender1729/IssueFlow/issues"
+  },
+  "keywords": [
+    "github",
+    "issues",
+    "open-source",
+    "contribution",
+    "pull-requests",
+    "astro",
+    "svelte",
+    "github-api",
+    "graphql"
+  ],
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -16,5 +38,8 @@
     "rough-notation": "^0.5.1",
     "svelte": "^5.39.11",
     "unocss": "^66.5.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
