@@ -2,28 +2,38 @@
 
 Find unassigned open GitHub issues without pull requests - your gateway to open-source contribution!
 
+**Live Demo**: [https://issueflow.pages.dev](https://issueflow.pages.dev)
+
+**Repository**: [https://github.com/ascender1729/IssueFlow](https://github.com/ascender1729/IssueFlow)
+
 ## Features
 
-- **Smart Filtering**: Automatically filters issues that are:
-  - ✅ Open
-  - ✅ Unassigned
-  - ✅ No linked pull requests
+### Smart Filtering
 
-- **Multiple Authentication Options**:
-  - 🔐 **GitHub OAuth** - Sign in with GitHub (Device Flow, no backend needed!)
-  - 🔑 **Personal Access Token** - Manual token input
-  - 🌐 **No Auth** - Use without signing in (REST API fallback)
+Automatically filters issues that are:
+- Open
+- Unassigned
+- No linked pull requests
 
-- **Optimized Performance**: Built with 2025's best tech
-  - Astro 5.x (0 KB JavaScript for static content)
-  - Svelte (3KB runtime for interactive components)
-  - UnoCSS (on-demand atomic CSS)
-  - GitHub GraphQL API (45% faster than REST)
+### Multiple Authentication Options
 
-- **Rate Limit Friendly**:
-  - 60 requests/hour without token (REST API)
-  - 5000 requests/hour with GitHub OAuth or token (GraphQL API)
-  - Token stored locally only (privacy-first)
+- **GitHub OAuth** - Sign in with GitHub (Device Flow, no backend needed)
+- **Personal Access Token** - Manual token input
+- **No Auth** - Use without signing in (REST API fallback)
+
+### Optimized Performance
+
+Built with modern web technologies:
+- Astro 5.x - Zero KB JavaScript for static content
+- Svelte - 3KB runtime for interactive components
+- UnoCSS - On-demand atomic CSS
+- GitHub GraphQL API - 45% faster than REST
+
+### Rate Limit Friendly
+
+- 60 requests/hour without token (REST API)
+- 5000 requests/hour with GitHub OAuth or token (GraphQL API)
+- Token stored locally only (privacy-first)
 
 ## Quick Start
 
@@ -62,24 +72,24 @@ npm run preview
 
 ## Usage
 
-### Option 1: With GitHub OAuth (Recommended) 🔐
+### Option 1: With GitHub OAuth (Recommended)
 
-1. Click **"Sign in with GitHub"**
+1. Click "Sign in with GitHub"
 2. Copy the code shown
 3. Authorize the app on GitHub
-4. Paste a repository URL and start searching!
+4. Paste a repository URL and start searching
 
-**Setup**: See [OAUTH_SETUP.md](./OAUTH_SETUP.md) for configuration instructions.
+**Setup**: See [OAUTH_SETUP.md](./OAUTH_SETUP.md) for OAuth configuration instructions.
 
-### Option 2: With Personal Access Token 🔑
+### Option 2: With Personal Access Token
 
-1. Create a [GitHub token](https://github.com/settings/tokens/new?description=GitHub%20Issues%20Finder&scopes=public_repo) (select `public_repo` scope)
+1. Create a [GitHub token](https://github.com/settings/tokens/new?description=IssueFlow&scopes=public_repo) (select `public_repo` scope)
 2. Paste the token in the app
-3. Paste a repository URL and start searching!
+3. Paste a repository URL and start searching
 
-### Option 3: Without Authentication 🌐
+### Option 3: Without Authentication
 
-1. Just paste a repository URL and click "Find Available Issues"
+1. Paste a repository URL and click "Find Available Issues"
 2. Works immediately with 60 requests/hour limit
 
 **Privacy Note**: All authentication is handled locally in your browser. Tokens are never sent to any server except GitHub's API.
@@ -129,7 +139,17 @@ netlify deploy --prod
 
 ## Contributing
 
-Pull requests welcome! This project itself uses the issues it helps you find.
+Contributions are welcome! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+### How to Contribute
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for more detailed guidelines.
 
 ## License
 
@@ -137,4 +157,6 @@ MIT
 
 ## Author
 
-Built with research-backed 2025 tech stack optimization.
+Created and maintained by [ascender1729](https://github.com/ascender1729)
+
+Built with modern web technologies and best practices.
