@@ -853,6 +853,7 @@
   }
 
   /* Custom scrollbar for help popup */
+  /* Note: 8px width balances aesthetics with usability. Increase if user feedback indicates difficulty grabbing. */
   .help-popup-scroll {
     scrollbar-width: thin;
     scrollbar-color: rgba(100, 116, 139, 0.6) transparent;
