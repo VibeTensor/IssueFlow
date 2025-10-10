@@ -6,6 +6,22 @@ Thank you for your interest in contributing to IssueFlow! This document provides
 
 **Live Demo**: [https://issueflow.pages.dev](https://issueflow.pages.dev)
 
+---
+
+## Hacktoberfest Participants
+
+IssueFlow participates in Hacktoberfest! If you're contributing during Hacktoberfest, please see our [Hacktoberfest Guide](./HACKTOBERFEST.md) for specific information about:
+
+- How to participate
+- Issue labels and what they mean
+- Quality guidelines for PRs
+- What counts as spam
+- Quick start guide
+
+**Looking for Hacktoberfest issues?** Check issues labeled [`hacktoberfest`](https://github.com/ascender1729/IssueFlow/issues?q=is%3Aissue+is%3Aopen+label%3Ahacktoberfest) or [`good first issue`](https://github.com/ascender1729/IssueFlow/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
+
+---
+
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)

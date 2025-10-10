@@ -139,7 +139,15 @@ netlify deploy --prod
 
 ## Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+Contributions are welcome! This project participates in **Hacktoberfest**.
+
+### Hacktoberfest
+
+IssueFlow is a Hacktoberfest-friendly project! We welcome contributions during Hacktoberfest and year-round.
+
+- See [HACKTOBERFEST.md](./HACKTOBERFEST.md) for Hacktoberfest-specific guidelines
+- Check issues labeled [`hacktoberfest`](https://github.com/ascender1729/IssueFlow/issues?q=is%3Aissue+is%3Aopen+label%3Ahacktoberfest)
+- Look for [`good first issue`](https://github.com/ascender1729/IssueFlow/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) for beginner-friendly tasks
 
 ### How to Contribute
 
@@ -149,7 +157,7 @@ Contributions are welcome! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for 
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for more detailed guidelines.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
 
 ## License
 
