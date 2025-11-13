@@ -446,3 +446,7 @@ Built with modern web technologies and best practices for performance, accessibi
 ---
 
 **Star this repository** if you find it helpful!
+
+## Community
+
+Join our community and contribute to making IssueFlow better for everyone!
