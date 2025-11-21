@@ -23,9 +23,10 @@ jobs:
           fi
 
       - name: Check for description
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          BODY="${{ github.event.pull_request.body }}"
-          if [ -z "$BODY" ] || [ ${#BODY} -lt 20 ]; then
+          if [ -z "$PR_BODY" ] || [ ${#PR_BODY} -lt 20 ]; then
             echo "Error: PR description is too short or missing"
             exit 1
           fi
