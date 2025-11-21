@@ -133,8 +133,16 @@
       try {
         document.execCommand('copy');
         copiedIssueNumber = issueNumber;
+
+        // Clear previous timeout if exists
+        if (copyFeedbackTimeout) {
+          clearTimeout(copyFeedbackTimeout);
+        }
+
+        // Hide feedback after 2 seconds
         copyFeedbackTimeout = window.setTimeout(() => {
           copiedIssueNumber = null;
+          copyFeedbackTimeout = null;
         }, 2000);
       } catch (e) {
         console.error('Fallback copy failed:', e);

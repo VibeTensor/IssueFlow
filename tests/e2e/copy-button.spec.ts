@@ -483,7 +483,7 @@ test.describe('Copy Button Feature - E2E Tests', () => {
         await page.waitForTimeout(500);
 
         // Should still be on the same page (not navigated to GitHub)
-        expect(page.url()).toContain('localhost');
+        expect(page.url()).not.toContain('github.com');
       }
     });
 
