@@ -1,8 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import ResultsList from '../components/ResultsList.svelte';
+import { ResultsContainer } from '../components/results';
 ---
 
 <Layout title="IssueFlow - Find Unassigned GitHub Issues">
-  <ResultsList client:load />
+  <ResultsContainer client:load />
 </Layout>
