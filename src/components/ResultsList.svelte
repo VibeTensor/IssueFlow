@@ -167,12 +167,13 @@
       case 'plain':
         return issuesToFormat.map(issue => issue.url).join('\n');
 
-      case 'csv':
+      case 'csv': {
         const header = 'Number,Title,URL';
         const rows = issuesToFormat.map(issue =>
           `${issue.number},"${issue.title.replace(/"/g, '""')}",${issue.url}`
         );
         return [header, ...rows].join('\n');
+      }
 
       default:
         return '';

@@ -44,12 +44,13 @@ function formatIssuesForExport(issuesToFormat: GitHubIssue[], format: 'markdown'
     case 'plain':
       return issuesToFormat.map(issue => issue.url).join('\n');
 
-    case 'csv':
+    case 'csv': {
       const header = 'Number,Title,URL';
       const rows = issuesToFormat.map(issue =>
         `${issue.number},"${issue.title.replace(/"/g, '""')}",${issue.url}`
       );
       return [header, ...rows].join('\n');
+    }
 
     default:
       return '';
@@ -320,17 +321,23 @@ describe('File Download Functionality', () => {
   let mockClick: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    mockCreateObjectURL = vi.fn().mockReturnValue('blob:test-url');
-    mockRevokeObjectURL = vi.fn();
+    mockCreateObjectURL = vi.fn<[Blob | MediaSource], string>().mockReturnValue('blob:test-url');
+    mockRevokeObjectURL = vi.fn<[string], void>();
     mockAppendChild = vi.fn();
     mockRemoveChild = vi.fn();
     mockClick = vi.fn();
 
-    global.URL.createObjectURL = mockCreateObjectURL;
-    global.URL.revokeObjectURL = mockRevokeObjectURL;
+    global.URL.createObjectURL = mockCreateObjectURL as typeof URL.createObjectURL;
+    global.URL.revokeObjectURL = mockRevokeObjectURL as typeof URL.revokeObjectURL;
 
-    vi.spyOn(document.body, 'appendChild').mockImplementation(mockAppendChild);
-    vi.spyOn(document.body, 'removeChild').mockImplementation(mockRemoveChild);
+    vi.spyOn(document.body, 'appendChild').mockImplementation((node: Node) => {
+      mockAppendChild(node);
+      return node;
+    });
+    vi.spyOn(document.body, 'removeChild').mockImplementation((child: Node) => {
+      mockRemoveChild(child);
+      return child;
+    });
   });
 
   afterEach(() => {
