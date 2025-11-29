@@ -374,6 +374,14 @@
 />
 
 <style>
+  /* Global body styles */
+  :global(body) {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
   /* Sketch container - hand-drawn look */
   .sketch-container {
     background: rgba(30, 41, 59, 0.8);
@@ -395,7 +403,7 @@
   }
 
   /* Sketch card - hand-drawn borders */
-  .sketch-card {
+  :global(.sketch-card) {
     background: rgba(30, 41, 59, 0.7);
     backdrop-filter: blur(16px);
     border-radius: 12px;
@@ -403,7 +411,7 @@
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
   }
 
-  .sketch-card::before {
+  :global(.sketch-card)::before {
     content: '';
     position: absolute;
     inset: -2px;
@@ -414,13 +422,110 @@
     pointer-events: none;
   }
 
+  /* Keyframe Animations */
+  @keyframes badge-pulse {
+    0%, 100% {
+      box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4), 0 0 0 0 rgba(34, 197, 94, 0.4);
+    }
+    50% {
+      box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4), 0 0 0 6px rgba(34, 197, 94, 0);
+    }
+  }
+
+  @keyframes card-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.2), 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(34, 197, 94, 0.35), 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  /* Zero-comment issue highlight - green glow with animation */
+  :global(.zero-comment-highlight) {
+    border: 2px solid rgba(34, 197, 94, 0.5);
+    background: rgba(34, 197, 94, 0.08);
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.2), 0 8px 30px rgba(0, 0, 0, 0.4);
+    animation: card-glow 3s ease-in-out infinite;
+  }
+
+  :global(.zero-comment-highlight)::before {
+    border-color: rgba(34, 197, 94, 0.4);
+  }
+
+  /* Easy to Start badge with pulse animation */
+  :global(.easy-start-badge) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.875rem;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+    animation: badge-pulse 2s ease-in-out infinite;
+  }
+
+  /* Filter toggle styles */
+  :global(.filter-toggle-container) {
+    padding: 0.5rem 1rem;
+    background: rgba(51, 65, 85, 0.5);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(71, 85, 105, 0.5);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  :global(.filter-toggle-container):hover {
+    background: rgba(51, 65, 85, 0.7);
+    border-color: rgba(71, 85, 105, 0.8);
+  }
+
+  :global(.toggle-track) {
+    position: relative;
+    transition: background-color 0.2s ease;
+  }
+
+  :global(.toggle-knob) {
+    pointer-events: none;
+    transition: transform 0.2s ease;
+  }
+
+  /* Sort dropdown styles */
+  :global(.sort-dropdown) {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+  }
+
+  :global(.sort-dropdown) option {
+    background: #1e293b;
+    color: white;
+  }
+
+  /* Hover effect for issue cards */
+  :global(.hover-effect) {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  }
+
+  :global(.hover-effect):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  }
+
   /* Sketch button */
-  .sketch-button {
+  :global(.sketch-button) {
     position: relative;
     transition: all 0.2s ease;
   }
 
-  .sketch-button::before {
+  :global(.sketch-button)::before {
     content: '';
     position: absolute;
     inset: -2px;
@@ -431,21 +536,84 @@
     pointer-events: none;
   }
 
-  .sketch-button:hover:not(:disabled) {
+  :global(.sketch-button):hover:not(:disabled) {
     transform: translateY(-1px);
   }
 
-  /* Sketch icons */
-  .sketch-icon {
+  /* Sketch input */
+  :global(.sketch-input) {
+    border: 2px solid rgba(148, 163, 184, 0.2);
+    transition: border-color 0.2s ease;
+  }
+
+  :global(.sketch-input):focus {
+    border-color: rgba(148, 163, 184, 0.4);
+  }
+
+  /* Sketch badge */
+  :global(.sketch-badge) {
     position: relative;
   }
 
-  .sketch-icon::before {
+  :global(.sketch-badge)::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: inherit;
+    filter: url(#sketch-light);
+    pointer-events: none;
+  }
+
+  /* Issue badge - hand-drawn */
+  :global(.issue-badge) {
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+  }
+
+  :global(.issue-badge)::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: transparent;
+    border: 2px solid rgba(148, 163, 184, 0.3);
+    border-radius: inherit;
+    filter: url(#sketch);
+    pointer-events: none;
+  }
+
+  :global(.group):hover :global(.issue-badge) {
+    transform: scale(1.05) rotate(2deg);
+  }
+
+  /* Sketch icons */
+  :global(.sketch-icon) {
+    position: relative;
+  }
+
+  :global(.sketch-icon)::before {
     content: '';
     position: absolute;
     inset: -1px;
     background: transparent;
     border: 2px solid rgba(148, 163, 184, 0.2);
+    border-radius: inherit;
+    filter: url(#sketch-light);
+    pointer-events: none;
+  }
+
+  :global(.sketch-icon-small) {
+    position: relative;
+  }
+
+  :global(.sketch-icon-small)::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.15);
     border-radius: inherit;
     filter: url(#sketch-light);
     pointer-events: none;
@@ -503,10 +671,90 @@
     animation-play-state: paused;
   }
 
-  /* Respect user's motion preferences for accessibility */
+  /* Custom scrollbar for help popup */
+  :global(.help-popup-scroll) {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.6) transparent;
+  }
+
+  :global(.help-popup-scroll)::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  :global(.help-popup-scroll)::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
+  }
+
+  :global(.help-popup-scroll)::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.6);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+  }
+
+  :global(.help-popup-scroll)::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.8);
+  }
+
+  :global(.help-popup-scroll) {
+    scroll-behavior: smooth;
+  }
+
+  /* Ensure text wrapping on mobile */
+  @media (max-width: 640px) {
+    :global(*) {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+  }
+
+  /* Smooth transitions */
+  :global(*) {
+    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+    transition-duration: 200ms;
+    transition-timing-function: ease-in-out;
+  }
+
+  /* Accessibility: Respect user's motion preferences */
   @media (prefers-reduced-motion: reduce) {
-    .help-button-pulse {
+    .help-button-pulse,
+    :global(.easy-start-badge),
+    :global(.zero-comment-highlight) {
       animation: none;
+    }
+
+    :global(.toggle-track),
+    :global(.toggle-knob),
+    :global(.filter-toggle-container),
+    :global(.hover-effect),
+    :global(.sort-dropdown) {
+      transition: none;
+    }
+  }
+
+  /* Accessibility: Enhanced focus indicators for keyboard navigation */
+  :global(.sketch-button):focus-visible,
+  :global(.sketch-input):focus-visible,
+  :global(a):focus-visible {
+    outline: 2px solid #4ade80;
+    outline-offset: 2px;
+  }
+
+  /* Ensure focus is visible on dark backgrounds */
+  :global(:focus-visible) {
+    outline: 2px solid #4ade80;
+    outline-offset: 2px;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    :global(.easy-start-badge) {
+      background: #22c55e;
+      border: 2px solid white;
+    }
+
+    :global(.zero-comment-highlight) {
+      border-width: 3px;
     }
   }
 </style>
