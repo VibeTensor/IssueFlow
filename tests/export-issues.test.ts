@@ -38,7 +38,7 @@ function formatIssuesForExport(issuesToFormat: GitHubIssue[], format: 'markdown'
   switch (format) {
     case 'markdown':
       return issuesToFormat.map(issue =>
-        `- [#${issue.number} ${issue.title}](${issue.url})`
+        `- [#${issue.number} ${issue.title.replace(/\]/g, '\\]')}](${issue.url})`
       ).join('\n');
 
     case 'plain':
@@ -111,7 +111,21 @@ describe('Export Issues Functionality', () => {
 
       const result = formatIssuesForExport(issues, 'markdown');
 
-      expect(result).toBe('- [#99 Fix [brackets] and (parentheses)](https://github.com/test/repo/issues/99)');
+      // Brackets are escaped to prevent breaking markdown links
+      expect(result).toBe('- [#99 Fix [brackets\\] and (parentheses)](https://github.com/test/repo/issues/99)');
+    });
+
+    it('should escape closing brackets that could break markdown links', () => {
+      const issues = [createMockIssue({
+        number: 42,
+        title: 'Fix [foo](bar) issue',
+        url: 'https://github.com/test/repo/issues/42'
+      })];
+
+      const result = formatIssuesForExport(issues, 'markdown');
+
+      // The ] in the title is escaped so the markdown link doesn't break
+      expect(result).toBe('- [#42 Fix [foo\\](bar) issue](https://github.com/test/repo/issues/42)');
     });
   });
 

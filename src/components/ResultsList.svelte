@@ -161,7 +161,7 @@
     switch (format) {
       case 'markdown':
         return issuesToFormat.map(issue =>
-          `- [#${issue.number} ${issue.title}](${issue.url})`
+          `- [#${issue.number} ${issue.title.replace(/\]/g, '\\]')}](${issue.url})`
         ).join('\n');
 
       case 'plain':
