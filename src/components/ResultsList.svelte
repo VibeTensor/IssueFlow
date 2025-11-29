@@ -125,6 +125,11 @@
     }
   }
 
+  /**
+   * Format a date string as relative time for display
+   * @param dateString - ISO date string from GitHub API
+   * @returns Human-readable relative time (e.g., "Today", "3 days ago")
+   */
   function formatDate(dateString: string): string {
     return getRelativeTime(dateString);
   }

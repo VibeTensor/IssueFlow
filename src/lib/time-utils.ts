@@ -63,20 +63,10 @@ export function getRelativeTime(dateString: string): string {
     return 'Yesterday';
   }
 
-  // Use Intl.RelativeTimeFormat for other cases
+  // Use Intl.RelativeTimeFormat for other cases (daysDiff >= 2)
   const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
 
-  // Determine the appropriate unit and value
-  if (diff < HOUR) {
-    const minutes = Math.floor(diff / MINUTE);
-    return rtf.format(-minutes, 'minute');
-  }
-
-  if (diff < DAY) {
-    const hours = Math.floor(diff / HOUR);
-    return rtf.format(-hours, 'hour');
-  }
-
+  // For 2-6 days, show "X days ago"
   if (diff < WEEK) {
     return rtf.format(-daysDiff, 'day');
   }

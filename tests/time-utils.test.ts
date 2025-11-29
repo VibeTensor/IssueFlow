@@ -11,25 +11,44 @@ import {
   getDaysSince
 } from '../src/lib/time-utils';
 
-// Helper functions to create test dates
+/**
+ * Helper function to create ISO date string for N days ago
+ * @param days - Number of days in the past
+ * @returns ISO date string
+ */
 function daysAgo(days: number): string {
   const date = new Date();
   date.setDate(date.getDate() - days);
   return date.toISOString();
 }
 
+/**
+ * Helper function to create ISO date string for N hours ago
+ * @param hours - Number of hours in the past
+ * @returns ISO date string
+ */
 function hoursAgo(hours: number): string {
   const date = new Date();
   date.setHours(date.getHours() - hours);
   return date.toISOString();
 }
 
+/**
+ * Helper function to create ISO date string for N minutes ago
+ * @param minutes - Number of minutes in the past
+ * @returns ISO date string
+ */
 function minutesAgo(minutes: number): string {
   const date = new Date();
   date.setMinutes(date.getMinutes() - minutes);
   return date.toISOString();
 }
 
+/**
+ * Helper function to create ISO date string for N days in the future
+ * @param days - Number of days in the future
+ * @returns ISO date string
+ */
 function daysFromNow(days: number): string {
   const date = new Date();
   date.setDate(date.getDate() + days);
