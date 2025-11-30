@@ -9,7 +9,7 @@
 export const REPO_URL = 'https://github.com/VibeTensor/IssueFlow';
 export const ISSUES_URL = `${REPO_URL}/issues`;
 export const CONTRIBUTING_URL = `${REPO_URL}/blob/master/CONTRIBUTING.md`;
-export const SITE_URL = 'https://issueflow.pages.dev';
+export const SITE_URL = 'https://issueflow.vibetensor.com';
 
 // Company Information - VibeTensor Private Limited (India)
 export const COMPANY_NAME = 'VibeTensor Private Limited';

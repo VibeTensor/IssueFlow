@@ -2,4 +2,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://issueflow.pages.dev/sitemap.xml
+Sitemap: https://issueflow.vibetensor.com/sitemap.xml

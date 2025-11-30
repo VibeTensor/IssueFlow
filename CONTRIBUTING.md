@@ -4,7 +4,7 @@ Thank you for your interest in contributing to IssueFlow! This document provides
 
 **Repository**: [https://github.com/VibeTensor/IssueFlow](https://github.com/VibeTensor/IssueFlow)
 
-**Live Demo**: [https://issueflow.pages.dev](https://issueflow.pages.dev)
+**Live Demo**: [https://issueflow.vibetensor.com](https://issueflow.vibetensor.com)
 
 ---
 

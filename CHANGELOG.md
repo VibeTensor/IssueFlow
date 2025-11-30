@@ -135,7 +135,7 @@ This is the initial public release of IssueFlow, a tool designed to help develop
 - Privacy-focused (no server-side data storage)
 - Open source under MIT License
 
-**Live Demo:** [https://issueflow.pages.dev](https://issueflow.pages.dev)
+**Live Demo:** [https://issueflow.vibetensor.com](https://issueflow.vibetensor.com)
 
 **Repository:** [https://github.com/VibeTensor/IssueFlow](https://github.com/VibeTensor/IssueFlow)
 

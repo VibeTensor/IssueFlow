@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <a href="https://issueflow.pages.dev">Live App</a> |
+  <a href="https://issueflow.vibetensor.com">Live App</a> |
   <a href="https://github.com/VibeTensor/IssueFlow/issues">Report Bug</a> |
   <a href="https://github.com/VibeTensor/IssueFlow/issues">Request Feature</a>
 </p>

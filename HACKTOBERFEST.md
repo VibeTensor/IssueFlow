@@ -221,4 +221,4 @@ Thank you for considering contributing to IssueFlow during Hacktoberfest! Your c
 
 **Repository**: [https://github.com/VibeTensor/IssueFlow](https://github.com/VibeTensor/IssueFlow)
 
-**Live Demo**: [https://issueflow.pages.dev](https://issueflow.pages.dev)
+**Live Demo**: [https://issueflow.vibetensor.com](https://issueflow.vibetensor.com)

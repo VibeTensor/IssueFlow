@@ -5,7 +5,7 @@ IssueFlow is hosted on Cloudflare Pages with automatic deployments.
 ## How It Works
 
 - **Pull Requests**: Get automatic preview deployments
-- **Merge to master**: Automatically deploys to production at [issueflow.pages.dev](https://issueflow.pages.dev)
+- **Merge to master**: Automatically deploys to production at [issueflow.vibetensor.com](https://issueflow.vibetensor.com)
 
 ## Local Development
 

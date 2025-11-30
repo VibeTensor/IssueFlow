@@ -37,7 +37,7 @@ describe('Footer Constants', () => {
     });
 
     it('should have correct site URL', () => {
-      expect(SITE_URL).toBe('https://issueflow.pages.dev');
+      expect(SITE_URL).toBe('https://issueflow.vibetensor.com');
     });
   });
 

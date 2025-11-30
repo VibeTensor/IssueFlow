@@ -9,7 +9,7 @@ const pkgPath = fileURLToPath(new URL('package.json', import.meta.url));
 const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
 
 export default defineConfig({
-  site: 'https://issueflow.pages.dev',
+  site: 'https://issueflow.vibetensor.com',
   integrations: [
     UnoCSS({ injectReset: true }),
     svelte()
