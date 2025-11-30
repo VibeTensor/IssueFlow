@@ -383,33 +383,19 @@ test.describe('Footer Component - E2E Tests', () => {
     test('should change link appearance on hover', async ({ page }) => {
       const footerLink = page.locator('footer .footer-link').first();
 
-      const initialTransform = await footerLink.evaluate((el) => {
-        return window.getComputedStyle(el).transform;
-      });
-
       await footerLink.hover();
-      await page.waitForTimeout(300);
 
-      const hoverTransform = await footerLink.evaluate((el) => {
-        return window.getComputedStyle(el).transform;
-      });
-
-      // Transform should change on hover (translateY(-2px))
-      expect(hoverTransform).not.toBe(initialTransform);
+      // Wait for CSS transition to apply translateY(-2px) which becomes matrix(1, 0, 0, 1, 0, -2)
+      await expect(footerLink).toHaveCSS('transform', /matrix\(1,\s*0,\s*0,\s*1,\s*0,\s*-2\)/);
     });
 
     test('should change social button appearance on hover', async ({ page }) => {
       const socialButton = page.locator('footer .social-icon-button').first();
 
       await socialButton.hover();
-      await page.waitForTimeout(300);
 
-      const transform = await socialButton.evaluate((el) => {
-        return window.getComputedStyle(el).transform;
-      });
-
-      // Should have translateY transform
-      expect(transform).toMatch(/matrix|translate/);
+      // Wait for CSS transition to apply translateY transform
+      await expect(socialButton).toHaveCSS('transform', /matrix/);
     });
   });
 

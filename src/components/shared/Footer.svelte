@@ -35,9 +35,8 @@
   async function handleNativeShare() {
     try {
       await nativeShare();
-    } catch (err) {
+    } catch {
       // User cancelled or error - fail silently
-      console.log('Share cancelled or failed:', err);
     }
   }
 

@@ -10,6 +10,7 @@ import {
   isWebShareSupported,
   isValidUrl,
   createShareData,
+  nativeShare,
   REPO_URL,
   ISSUES_URL,
   CONTRIBUTING_URL,
@@ -386,6 +387,95 @@ describe('createShareData', () => {
       const data = createShareData();
       expect(data).toHaveProperty('url');
     });
+  });
+});
+
+// ============================================================================
+// nativeShare Tests
+// ============================================================================
+describe('nativeShare', () => {
+  const originalNavigator = global.navigator;
+
+  afterEach(() => {
+    Object.defineProperty(global, 'navigator', {
+      value: originalNavigator,
+      writable: true,
+      configurable: true
+    });
+  });
+
+  it('should throw when Web Share API is not supported', async () => {
+    Object.defineProperty(global, 'navigator', {
+      value: undefined,
+      writable: true,
+      configurable: true
+    });
+    await expect(nativeShare()).rejects.toThrow('Web Share API is not supported');
+  });
+
+  it('should throw when navigator.share is undefined', async () => {
+    Object.defineProperty(global, 'navigator', {
+      value: { share: undefined },
+      writable: true,
+      configurable: true
+    });
+    await expect(nativeShare()).rejects.toThrow('Web Share API is not supported');
+  });
+
+  it('should call navigator.share with default values', async () => {
+    const mockShare = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(global, 'navigator', {
+      value: { share: mockShare },
+      writable: true,
+      configurable: true
+    });
+
+    await nativeShare();
+
+    expect(mockShare).toHaveBeenCalledWith({
+      title: 'IssueFlow',
+      text: DEFAULT_SHARE_TEXT,
+      url: SITE_URL
+    });
+  });
+
+  it('should call navigator.share with custom values', async () => {
+    const mockShare = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(global, 'navigator', {
+      value: { share: mockShare },
+      writable: true,
+      configurable: true
+    });
+
+    await nativeShare('Custom Title', 'Custom text', 'https://custom.url');
+
+    expect(mockShare).toHaveBeenCalledWith({
+      title: 'Custom Title',
+      text: 'Custom text',
+      url: 'https://custom.url'
+    });
+  });
+
+  it('should propagate errors from navigator.share', async () => {
+    const mockShare = vi.fn().mockRejectedValue(new Error('User cancelled'));
+    Object.defineProperty(global, 'navigator', {
+      value: { share: mockShare },
+      writable: true,
+      configurable: true
+    });
+
+    await expect(nativeShare()).rejects.toThrow('User cancelled');
+  });
+
+  it('should resolve when share is successful', async () => {
+    const mockShare = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(global, 'navigator', {
+      value: { share: mockShare },
+      writable: true,
+      configurable: true
+    });
+
+    await expect(nativeShare()).resolves.toBeUndefined();
   });
 });
 

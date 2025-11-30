@@ -1,5 +1,5 @@
 ---
-import { Footer } from '../components/shared';
+import { Footer, SVGFilters } from '../components/shared';
 
 interface Props {
   title: string;
@@ -93,7 +93,8 @@ const ogImage = `${siteUrl}/og-image.png`;
     </script>
   </head>
   <body>
+    <SVGFilters />
     <slot />
-    <Footer client:load />
+    <Footer client:visible />
   </body>
 </html>
