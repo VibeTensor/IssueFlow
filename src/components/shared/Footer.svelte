@@ -187,7 +187,7 @@
   .footer-container::before {
     content: '';
     position: absolute;
-    inset: -2px;
+    inset: -1px;
     background: transparent;
     border: 2px solid rgba(148, 163, 184, 0.25);
     filter: url(#sketch);
@@ -240,7 +240,7 @@
   .footer-link::before {
     content: '';
     position: absolute;
-    inset: -2px;
+    inset: -1px;
     background: transparent;
     border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: inherit;
@@ -291,7 +291,7 @@
   .social-icon-button::before {
     content: '';
     position: absolute;
-    inset: -2px;
+    inset: -1px;
     background: transparent;
     border: 2px solid rgba(255, 255, 255, 0.15);
     border-radius: inherit;
