@@ -19,12 +19,12 @@ test.describe('EmptyState Component - E2E Tests', () => {
 
     test('should show correct initial state title', async ({ page }) => {
       const title = page.locator('.empty-state-title');
-      await expect(title).toContainText('Ready to find issues?');
+      await expect(title).toContainText('Enter a repository URL');
     });
 
     test('should show correct initial state description', async ({ page }) => {
       const description = page.locator('.empty-state-description');
-      await expect(description).toContainText('GitHub repository');
+      await expect(description).toContainText('quick pick');
     });
 
     test('should display illustration', async ({ page }) => {

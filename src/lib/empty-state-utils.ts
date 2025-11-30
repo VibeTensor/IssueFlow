@@ -81,9 +81,8 @@ export const RATE_LIMIT_DOCS_URL = 'https://docs.github.com/en/rest/rate-limit';
  */
 export const EMPTY_STATE_CONFIGS: Record<EmptyStateVariant, EmptyStateConfig> = {
   initial: {
-    title: 'Ready to find issues?',
-    description: 'Enter a GitHub repository URL above to discover unassigned issues waiting for contributors',
-    primaryActionLabel: 'Try Popular Repos',
+    title: 'Enter a repository URL',
+    description: 'Or click a quick pick above to get started',
     secondaryActionLabel: 'How it works',
     secondaryActionHref: README_URL,
     announcement: 'Ready to search. Enter a GitHub repository URL to find issues.'

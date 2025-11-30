@@ -67,11 +67,16 @@ describe('Empty State Constants', () => {
       });
     });
 
-    it('should have primary action label for each variant', () => {
-      Object.values(EMPTY_STATE_CONFIGS).forEach(config => {
+    it('should have primary action label for variants that need it', () => {
+      // All variants except 'initial' have primary actions
+      const variantsWithPrimaryAction = ['no-results', 'error', 'rate-limited', 'success'];
+      variantsWithPrimaryAction.forEach(variant => {
+        const config = EMPTY_STATE_CONFIGS[variant as keyof typeof EMPTY_STATE_CONFIGS];
         expect(config.primaryActionLabel).toBeDefined();
         expect(config.primaryActionLabel!.length).toBeGreaterThan(0);
       });
+      // Initial variant does NOT have primary action (quick picks are in SearchForm)
+      expect(EMPTY_STATE_CONFIGS.initial.primaryActionLabel).toBeUndefined();
     });
   });
 
@@ -79,11 +84,19 @@ describe('Empty State Constants', () => {
     const config = EMPTY_STATE_CONFIGS.initial;
 
     it('should have correct title', () => {
-      expect(config.title).toBe('Ready to find issues?');
+      expect(config.title).toBe('Enter a repository URL');
+    });
+
+    it('should have correct description', () => {
+      expect(config.description).toBe('Or click a quick pick above to get started');
     });
 
     it('should have secondary action href pointing to README', () => {
       expect(config.secondaryActionHref).toBe(README_URL);
+    });
+
+    it('should NOT have primary action (quick picks are in SearchForm)', () => {
+      expect(config.primaryActionLabel).toBeUndefined();
     });
   });
 
