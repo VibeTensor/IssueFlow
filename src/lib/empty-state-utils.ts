@@ -160,7 +160,8 @@ export function isRateLimitError(error: Error | string | null): boolean {
     lowerMessage.includes('rate_limit') ||
     lowerMessage.includes('403') ||
     lowerMessage.includes('api limit') ||
-    lowerMessage.includes('exceeded')
+    lowerMessage.includes('limit exceeded') ||
+    lowerMessage.includes('quota exceeded')
   );
 }
 

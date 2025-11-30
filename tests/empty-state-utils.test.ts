@@ -172,9 +172,15 @@ describe('isRateLimitError', () => {
       expect(isRateLimitError('api limit exceeded')).toBe(true);
     });
 
-    it('should detect "exceeded" message', () => {
-      expect(isRateLimitError('Request exceeded')).toBe(true);
+    it('should detect "limit exceeded" and "quota exceeded" messages', () => {
+      expect(isRateLimitError('Limit exceeded')).toBe(true);
       expect(isRateLimitError('Quota exceeded')).toBe(true);
+      expect(isRateLimitError('Request limit exceeded')).toBe(true);
+    });
+
+    it('should not match generic exceeded messages (false positive prevention)', () => {
+      expect(isRateLimitError('Memory exceeded')).toBe(false);
+      expect(isRateLimitError('Timeout exceeded')).toBe(false);
     });
 
     it('should be case insensitive', () => {

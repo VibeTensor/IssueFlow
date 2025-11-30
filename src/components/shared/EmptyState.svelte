@@ -137,7 +137,7 @@
         <button
           type="button"
           class="primary-action"
-          on:click={onPrimaryAction}
+          onclick={onPrimaryAction}
         >
           {primaryLabel}
         </button>

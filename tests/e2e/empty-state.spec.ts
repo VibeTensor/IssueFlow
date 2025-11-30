@@ -88,8 +88,10 @@ test.describe('EmptyState Component - E2E Tests', () => {
       const searchButton = page.locator('button:has-text("Find Unassigned")');
       await searchButton.click();
 
-      // Wait for error state
-      await page.waitForTimeout(500);
+      // Wait for error state to appear
+      await page.waitForSelector('.empty-state-title:has-text("Something went wrong")', {
+        timeout: 5000
+      });
 
       // Should show error empty state
       const emptyState = page.locator('.empty-state-container');
@@ -108,8 +110,10 @@ test.describe('EmptyState Component - E2E Tests', () => {
       const searchButton = page.locator('button:has-text("Find Unassigned")');
       await searchButton.click();
 
-      // Wait for error state
-      await page.waitForTimeout(500);
+      // Wait for error state to appear
+      await page.waitForSelector('.empty-state-title:has-text("Something went wrong")', {
+        timeout: 5000
+      });
 
       // Should show retry button
       const retryButton = page.locator('.empty-state-container .primary-action');
@@ -126,8 +130,10 @@ test.describe('EmptyState Component - E2E Tests', () => {
       const searchButton = page.locator('button:has-text("Find Unassigned")');
       await searchButton.click();
 
-      // Wait for error state
-      await page.waitForTimeout(500);
+      // Wait for error state to appear
+      await page.waitForSelector('.empty-state-title:has-text("Something went wrong")', {
+        timeout: 5000
+      });
 
       const svg = page.locator('.empty-state-container .illustration svg');
       await expect(svg).toBeVisible();
