@@ -16,12 +16,19 @@
   import { GitHubAPI, parseRepoUrl, type GitHubIssue } from '../../lib/github-graphql';
   import { countZeroCommentIssues, sortByComments, isZeroComment, type CommentSortOrder } from '../../lib/issue-utils';
   import GitHubAuth from '../GitHubAuth.svelte';
-  import { SVGFilters, EmptyState } from '../shared';
+  import { SVGFilters, EmptyState, LoadingProgress, CancelConfirmModal } from '../shared';
   import {
     detectEmptyStateVariant,
     isRateLimitError,
     type EmptyStateVariant
   } from '../../lib/empty-state-utils';
+  import {
+    type ProgressState,
+    toCancelledState,
+    createInitialState,
+    GRAPHQL_MAX_PAGES,
+    REST_MAX_PAGES
+  } from '../../lib/loading-progress-utils';
   import {
     SearchForm,
     RateLimitDisplay,
@@ -35,8 +42,13 @@
   let loading = $state(false);
   let error = $state('');
   let issues = $state<GitHubIssue[]>([]);
-  let loadingMessage = $state('Fetching issues...');
   let hasSearched = $state(false);
+
+  // Progress tracking state (Issue #23)
+  let progressState = $state<ProgressState | null>(null);
+  let abortController = $state<AbortController | null>(null);
+  let showCancelModal = $state(false);
+  let searchStartTime = $state<number | null>(null);
 
   // Rate limit state
   let rateLimit = $state({ remaining: 0, resetAt: '' });
@@ -89,11 +101,13 @@
     updateRateLimit();
   });
 
-  // Cleanup timeout on component destroy
+  // Cleanup on component destroy
   onDestroy(() => {
     if (copyFeedbackTimeout) {
       clearTimeout(copyFeedbackTimeout);
     }
+    // Abort any in-progress search
+    abortController?.abort();
   });
 
   // Handle authentication changes
@@ -119,14 +133,23 @@
     }
   }
 
-  // Handle search
+  // Handle search (Issue #23 - with progress tracking and cancel support)
   async function handleSearch() {
+    // Abort any previous search
+    abortController?.abort();
+
+    // Reset state
     error = '';
     issues = [];
     loading = true;
-    loadingMessage = 'Initializing...';
     hasSearched = true;
+    showCancelModal = false;
 
+    // Create new AbortController
+    abortController = new AbortController();
+    searchStartTime = Date.now();
+
+    // Save token if provided
     if (githubToken) {
       localStorage.setItem('github_token', githubToken);
       isAuthenticated = true;
@@ -138,20 +161,46 @@
     if (!parsed) {
       error = 'Invalid GitHub repository URL. Format: https://github.com/owner/repo';
       loading = false;
+      progressState = null;
       return;
     }
 
+    // Initialize progress state
+    const maxPages = githubToken ? GRAPHQL_MAX_PAGES : REST_MAX_PAGES;
+    progressState = createInitialState({
+      maxPages,
+      isAuthenticated: !!githubToken
+    });
+
+    // Progress callback
+    const onProgress = (state: ProgressState) => {
+      progressState = state;
+    };
+
     try {
-      loadingMessage = `Fetching issues from ${parsed.owner}/${parsed.repo}...`;
       const api = new GitHubAPI(githubToken || undefined);
-      const result = await api.fetchAvailableIssues(parsed.owner, parsed.repo);
+      const result = await api.fetchAvailableIssues(
+        parsed.owner,
+        parsed.repo,
+        onProgress,
+        abortController.signal
+      );
       issues = result.issues;
       rateLimit = result.rateLimit;
       // Note: Empty results (issues.length === 0) are handled by EmptyState component
     } catch (e: any) {
-      error = e.message || 'Failed to fetch issues';
+      // Handle abort separately
+      if (e.name === 'AbortError' || abortController?.signal.aborted) {
+        // User cancelled - partial results may be in issues from API
+        console.log('[UI] Search cancelled by user');
+      } else {
+        error = e.message || 'Failed to fetch issues';
+      }
     } finally {
       loading = false;
+      abortController = null;
+      searchStartTime = null;
+      // Keep progressState for potential cancelled state display
     }
   }
 
@@ -241,6 +290,30 @@
   // Toggle help popup
   function toggleHelpPopup() {
     showHelpPopup = !showHelpPopup;
+  }
+
+  // Cancel handlers (Issue #23)
+  function handleCancelRequest() {
+    showCancelModal = true;
+  }
+
+  function handleCancelContinue() {
+    showCancelModal = false;
+  }
+
+  function handleCancelConfirm() {
+    showCancelModal = false;
+
+    // Abort the fetch
+    abortController?.abort();
+
+    // Update progress state to cancelled
+    if (progressState) {
+      progressState = toCancelledState(progressState);
+    }
+
+    // Loading will be set to false in handleSearch's finally block
+    // Issues array will contain partial results from API
   }
 
   // Export issues
@@ -428,15 +501,24 @@
   </aside>
 
   <!-- RIGHT MAIN PANEL -->
-  <main class="flex-1 min-w-0 p-3 lg:p-4 lg:overflow-y-auto">
-    <!-- Loading State - centered in right panel -->
-    {#if loading}
+  <main class="flex-1 min-w-0 p-3 lg:p-4 lg:overflow-y-auto pb-20">
+    <!-- Loading State - centered in right panel (Issue #23) -->
+    {#if loading && progressState}
+      <div class="flex flex-col items-center justify-center min-h-[300px] lg:min-h-[400px]">
+        <LoadingProgress
+          {progressState}
+          onCancelRequest={handleCancelRequest}
+          startTime={searchStartTime}
+        />
+      </div>
+    {:else if loading}
+      <!-- Fallback spinner if progressState not yet initialized -->
       <div class="flex flex-col items-center justify-center min-h-[300px] lg:min-h-[400px]">
         <div class="relative w-12 h-12 mb-4">
           <div class="animate-spin rounded-full h-12 w-12 border-2 border-slate-700"></div>
           <div class="animate-spin rounded-full h-12 w-12 border-2 border-teal-500 border-t-transparent absolute top-0 left-0"></div>
         </div>
-        <p class="text-slate-300 text-sm font-medium">{loadingMessage}</p>
+        <p class="text-slate-300 text-sm font-medium">Initializing...</p>
       </div>
     {/if}
 
@@ -480,15 +562,16 @@
   </main>
 </div>
 
-<!-- Help Button (fixed position) -->
+<!-- Help Button (fixed position) - Brand styled circular FAB -->
 <button
   type="button"
   onclick={toggleHelpPopup}
-  class="help-button sketch-card w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:bg-slate-700/80"
-  aria-label="Show help"
+  class="help-button"
+  aria-label="How it works - Show help guide"
   aria-expanded={showHelpPopup}
+  title="How it works?"
 >
-  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg class="help-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
   </svg>
 </button>
@@ -497,6 +580,14 @@
 <HelpPopup
   show={showHelpPopup}
   onClose={toggleHelpPopup}
+/>
+
+<!-- Cancel Confirmation Modal (Issue #23) -->
+<CancelConfirmModal
+  show={showCancelModal}
+  issuesLoaded={progressState?.issuesFound ?? 0}
+  onContinue={handleCancelContinue}
+  onConfirm={handleCancelConfirm}
 />
 
 <style>
@@ -781,19 +872,93 @@
     }
   }
 
-  /* Help button fixed positioning */
+  /* Help button - Brand styled circular FAB (compact) */
+  /* Positioned above footer (footer ~70px height) */
   .help-button {
     position: fixed !important;
-    bottom: 1rem !important;
+    bottom: 5rem !important;  /* Above footer */
     right: 1rem !important;
-    z-index: 9999 !important;
-    border-radius: 9999px !important;
+    z-index: 40 !important;
+
+    /* Circular button - compact size */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+
+    /* Brand teal gradient */
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    color: white;
+
+    /* Shadow glow - subtle */
+    box-shadow: 0 3px 12px rgba(20, 184, 166, 0.35);
+
+    /* Transitions */
+    transition: all 0.2s ease;
+
+    /* Pulse animation */
+    animation: help-glow 3s ease-in-out infinite;
   }
 
+  .help-button:hover {
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+    box-shadow: 0 4px 16px rgba(20, 184, 166, 0.45);
+    transform: translateY(-1px);
+  }
+
+  .help-button:active {
+    background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+    box-shadow: 0 2px 10px rgba(20, 184, 166, 0.3);
+    transform: translateY(0) scale(0.98);
+  }
+
+  .help-button:focus-visible {
+    outline: 2px solid #14b8a6;
+    outline-offset: 2px;
+  }
+
+  /* Icon styling - compact */
+  .help-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Pulse glow animation - subtle */
+  @keyframes help-glow {
+    0%, 100% {
+      box-shadow: 0 3px 12px rgba(20, 184, 166, 0.35);
+    }
+    50% {
+      box-shadow: 0 3px 16px rgba(20, 184, 166, 0.5);
+    }
+  }
+
+  /* Tablet and up: Larger position offset */
   @media (min-width: 768px) {
     .help-button {
-      bottom: 2rem !important;
-      right: 2rem !important;
+      bottom: 5.5rem !important;  /* Above footer */
+      right: 1.5rem !important;
+    }
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .help-button {
+      animation: none;
+      transition: none;
+    }
+
+    .help-button:hover {
+      transform: none;
+    }
+
+    .help-button:active {
+      transform: none;
     }
   }
 
