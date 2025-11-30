@@ -78,21 +78,26 @@
   /**
    * Handle Enter key in repo URL input
    */
-  function handleKeypress(event: KeyboardEvent) {
+  function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter') {
       onSearch();
     }
   }
 
-  // Auto-focus the repository URL input on mount
+  // Auto-focus the repository URL input on mount and cleanup timeout
   onMount(() => {
     if (repoUrlInput) {
       repoUrlInput.focus();
     }
+    return () => {
+      if (validationTimeout) {
+        clearTimeout(validationTimeout);
+      }
+    };
   });
 
-  // Derived: can submit form
-  let canSubmit = $derived(!loading && repoUrl.trim().length > 0);
+  // Derived: can submit form (also checks validation state)
+  let canSubmit = $derived(!loading && repoUrl.trim().length > 0 && validationState !== 'invalid');
 </script>
 
 <div class="sketch-card p-4 md:p-6 lg:p-8 mb-8">
@@ -116,7 +121,7 @@
           placeholder="https://github.com/facebook/react"
           class="sketch-input w-full pl-14 pr-12 py-4 text-base text-white rounded-lg outline-none bg-slate-800/80 placeholder-slate-500 {validationState === 'valid' ? 'border-green-500/50' : validationState === 'invalid' ? 'border-red-500/50' : ''}"
           oninput={handleRepoUrlInput}
-          onkeypress={handleKeypress}
+          onkeydown={handleKeydown}
           aria-describedby="repoUrl-hint"
           aria-invalid={validationState === 'invalid'}
         />

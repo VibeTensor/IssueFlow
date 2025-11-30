@@ -55,7 +55,7 @@
       <div class="sticky top-0 bg-slate-900/98 backdrop-blur px-4 md:px-8 py-4 md:py-6 flex items-center justify-between border-b border-slate-700 z-10">
         <div class="flex items-center gap-3 md:gap-4 min-w-0">
           <div class="w-10 h-10 md:w-12 md:h-12 bg-slate-700 rounded-lg flex items-center justify-center sketch-icon flex-shrink-0">
-            <svg class="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -66,7 +66,7 @@
           class="w-10 h-10 rounded-lg hover:bg-slate-700/50 flex items-center justify-center transition-colors"
           aria-label="Close"
         >
-          <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -143,7 +143,7 @@
                 </div>
 
                 <div class="flex items-start gap-2 mt-3 pt-3 border-t border-slate-700">
-                  <svg class="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <p class="text-amber-300 text-xs break-words">
@@ -187,7 +187,7 @@
                   <span class="break-words"><strong>With token:</strong> Excludes issues with PRs</span>
                 </li>
                 <li class="flex items-start gap-2">
-                  <svg class="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                   <span class="text-amber-300 text-xs break-words"><strong>Without token:</strong> PR filtering unavailable</span>
@@ -211,7 +211,7 @@
         <!-- Privacy Note -->
         <div class="sketch-card p-4 md:p-6 bg-slate-800/40">
           <div class="flex items-start gap-3 md:gap-4">
-            <svg class="w-5 h-5 md:w-6 md:h-6 text-slate-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 md:w-6 md:h-6 text-slate-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
             <div class="min-w-0">

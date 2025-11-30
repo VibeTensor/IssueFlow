@@ -7,6 +7,8 @@
 -->
 
 <script lang="ts">
+  import { onMount } from 'svelte';
+
   interface Props {
     text: string;
     label?: string;
@@ -27,6 +29,15 @@
 
   let internalCopied = $state(false);
   let copyTimeout: number | null = null;
+
+  // Cleanup timeout on component unmount
+  onMount(() => {
+    return () => {
+      if (copyTimeout) {
+        window.clearTimeout(copyTimeout);
+      }
+    };
+  });
 
   // Use external copied state if provided, otherwise use internal
   let showCopied = $derived(copied || internalCopied);

@@ -30,7 +30,7 @@
     switch (format) {
       case 'markdown':
         return issuesToFormat.map(issue =>
-          `- [#${issue.number} ${issue.title.replace(/\]/g, '\\]')}](${issue.url})`
+          `- [#${issue.number} ${issue.title.replace(/[\[\]]/g, '\\$&')}](${issue.url})`
         ).join('\n');
 
       case 'plain':
@@ -39,7 +39,7 @@
       case 'csv': {
         const header = 'Number,Title,URL';
         const rows = issuesToFormat.map(issue =>
-          `${issue.number},"${issue.title.replace(/"/g, '""')}",${issue.url}`
+          `${issue.number},"${issue.title.replace(/"/g, '""').replace(/\r?\n/g, ' ')}",${issue.url}`
         );
         return [header, ...rows].join('\n');
       }
@@ -136,6 +136,7 @@
       class="absolute right-0 top-full mt-2 w-56 bg-slate-800 rounded-xl shadow-xl border border-slate-700 overflow-hidden z-50"
       role="menu"
       onmouseleave={closeDropdown}
+      onkeydown={(e) => e.key === 'Escape' && closeDropdown()}
     >
       <!-- Markdown option -->
       <button

@@ -16,7 +16,7 @@
 
   // Derived state
   let isLowRemaining = $derived(remaining < 10);
-  let showDisplay = $derived(remaining !== undefined && remaining > 0);
+  let showDisplay = $derived(remaining > 0);
 </script>
 
 {#if showDisplay}

@@ -12,7 +12,7 @@
 -->
 
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { GitHubAPI, parseRepoUrl, type GitHubIssue } from '../../lib/github-graphql';
   import { countZeroCommentIssues, sortByComments, isZeroComment, type CommentSortOrder } from '../../lib/issue-utils';
   import GitHubAuth from '../GitHubAuth.svelte';
@@ -74,6 +74,13 @@
       isAuthenticated = true;
     }
     updateRateLimit();
+  });
+
+  // Cleanup timeout on component destroy
+  onDestroy(() => {
+    if (copyFeedbackTimeout) {
+      clearTimeout(copyFeedbackTimeout);
+    }
   });
 
   // Handle authentication changes
