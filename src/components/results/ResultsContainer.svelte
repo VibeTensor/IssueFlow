@@ -16,7 +16,12 @@
   import { GitHubAPI, parseRepoUrl, type GitHubIssue } from '../../lib/github-graphql';
   import { countZeroCommentIssues, sortByComments, isZeroComment, type CommentSortOrder } from '../../lib/issue-utils';
   import GitHubAuth from '../GitHubAuth.svelte';
-  import { SVGFilters } from '../shared';
+  import { SVGFilters, EmptyState } from '../shared';
+  import {
+    detectEmptyStateVariant,
+    isRateLimitError,
+    type EmptyStateVariant
+  } from '../../lib/empty-state-utils';
   import {
     SearchForm,
     RateLimitDisplay,
@@ -32,6 +37,7 @@
   let error = $state('');
   let issues = $state<GitHubIssue[]>([]);
   let loadingMessage = $state('Fetching issues...');
+  let hasSearched = $state(false);
 
   // Rate limit state
   let rateLimit = $state({ remaining: 0, resetAt: '' });
@@ -65,6 +71,14 @@
 
   // Derived: count of zero-comment issues
   let zeroCommentCount = $derived(countZeroCommentIssues(issues));
+
+  // Derived: detect which empty state variant to show (if any)
+  let emptyStateVariant = $derived(detectEmptyStateVariant({
+    hasSearched,
+    isLoading: loading,
+    error: error || null,
+    resultsCount: issues.length
+  }));
 
   // Initialize on mount
   onMount(() => {
@@ -112,6 +126,7 @@
     issues = [];
     loading = true;
     loadingMessage = 'Initializing...';
+    hasSearched = true;
 
     if (githubToken) {
       localStorage.setItem('github_token', githubToken);
@@ -133,10 +148,7 @@
       const result = await api.fetchAvailableIssues(parsed.owner, parsed.repo);
       issues = result.issues;
       rateLimit = result.rateLimit;
-
-      if (issues.length === 0) {
-        error = 'No unassigned issues found. Try another repository or all issues may have PRs.';
-      }
+      // Note: Empty results (issues.length === 0) are handled by EmptyState component
     } catch (e: any) {
       error = e.message || 'Failed to fetch issues';
     } finally {
@@ -168,6 +180,23 @@
   function handleClearFilters() {
     showOnlyZeroComments = false;
     sortOrder = 'default';
+  }
+
+  // Handle EmptyState primary action based on variant
+  function handleEmptyStatePrimaryAction() {
+    if (emptyStateVariant === 'error' || emptyStateVariant === 'rate-limited') {
+      // Retry search
+      handleSearch();
+    } else if (emptyStateVariant === 'no-results') {
+      // Clear filters
+      handleClearFilters();
+    } else if (emptyStateVariant === 'initial') {
+      // Focus the URL input (handled by SearchForm)
+      const urlInput = document.querySelector('input[type="url"], input[placeholder*="github"]') as HTMLInputElement;
+      if (urlInput) {
+        urlInput.focus();
+      }
+    }
   }
 
   // Handle copy issue URL
@@ -330,20 +359,19 @@
     </div>
   {/if}
 
-  <!-- Error State -->
-  {#if error}
-    <div class="sketch-card px-6 py-4 mb-4 bg-red-950/30">
-      <div class="flex items-center gap-3">
-        <svg class="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span class="text-red-300">{error}</span>
-      </div>
+  <!-- Empty State - shows for initial, error, rate-limited, no-results -->
+  {#if emptyStateVariant}
+    <div class="mt-8">
+      <EmptyState
+        variant={emptyStateVariant}
+        onPrimaryAction={handleEmptyStatePrimaryAction}
+        customDescription={emptyStateVariant === 'error' ? error : undefined}
+      />
     </div>
   {/if}
 
   <!-- Issues List -->
-  {#if issues.length > 0}
+  {#if issues.length > 0 && !emptyStateVariant}
     <IssuesList
       {issues}
       {displayedIssues}
