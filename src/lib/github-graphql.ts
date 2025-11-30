@@ -173,13 +173,13 @@ export class GitHubAPI {
         progressState = toFetchingState(progressState, pageCount + 1, allIssues.length);
         onProgress?.(progressState);
 
-        const data = await this.client.request<IssuesResponse>(QUERY, {
+        const data: IssuesResponse = await this.client.request<IssuesResponse>(QUERY, {
           owner,
           repo,
           cursor
         });
 
-        const { issues } = data.repository;
+        const issues = data.repository.issues;
 
         // Store rate limit from response
         lastRateLimit = data.rateLimit;

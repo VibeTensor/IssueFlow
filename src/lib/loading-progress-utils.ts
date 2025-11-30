@@ -24,6 +24,8 @@ export interface ProgressState {
   phase: LoadingPhase;
   /** Whether the operation was cancelled */
   cancelled: boolean;
+  /** Last known progress percentage (preserved on cancel/error) */
+  lastProgress?: number;
 }
 
 /**
@@ -85,12 +87,17 @@ export const PHASE_MESSAGES: Record<LoadingPhase, string> = {
  */
 export function calculateProgress(state: ProgressState): number {
   if (state.phase === 'complete') return 100;
-  if (state.phase === 'cancelled' || state.phase === 'error') return 0;
+  // Preserve last progress on cancel/error instead of resetting to 0
+  if (state.phase === 'cancelled' || state.phase === 'error') {
+    return state.lastProgress ?? 0;
+  }
   if (state.phase === 'initializing') return 5;
   if (state.phase === 'authenticating') return 10;
 
   // For fetching phase, calculate based on pages
   if (state.phase === 'fetching') {
+    // Guard clause: prevent NaN when maxPages is 0 or negative
+    if (state.maxPages <= 0) return 15;
     const baseProgress = 15; // After auth
     const fetchProgress = 75; // Total progress allocated to fetching
     const pageProgress = (state.currentPage / state.maxPages) * fetchProgress;
@@ -242,25 +249,27 @@ export function toCompleteState(
 /**
  * Create state for cancelled phase
  * @param prevState - Previous state
- * @returns Updated state
+ * @returns Updated state with preserved progress
  */
 export function toCancelledState(prevState: ProgressState): ProgressState {
   return {
     ...prevState,
     phase: 'cancelled',
-    cancelled: true
+    cancelled: true,
+    lastProgress: calculateProgress(prevState)
   };
 }
 
 /**
  * Create state for error phase
  * @param prevState - Previous state
- * @returns Updated state
+ * @returns Updated state with preserved progress
  */
 export function toErrorState(prevState: ProgressState): ProgressState {
   return {
     ...prevState,
-    phase: 'error'
+    phase: 'error',
+    lastProgress: calculateProgress(prevState)
   };
 }
 

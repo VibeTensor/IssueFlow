@@ -7,51 +7,50 @@
 -->
 
 <script lang="ts">
-  import { onMount } from 'svelte';
-
   interface Props {
     show: boolean;
     onClose: () => void;
   }
 
   let { show, onClose }: Props = $props();
+  let closeButtonRef: HTMLButtonElement | null = $state(null);
 
   /**
-   * Handle keyboard events - close on Escape
+   * Handle keyboard events on backdrop - close on Escape
    */
-  function handleKeydown(event: KeyboardEvent) {
+  function handleBackdropKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
       onClose();
     }
   }
 
-  // Add/remove event listener for escape key
-  onMount(() => {
-    const handleGlobalKeydown = (event: KeyboardEvent) => {
-      if (show && event.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    window.addEventListener('keydown', handleGlobalKeydown);
-    return () => window.removeEventListener('keydown', handleGlobalKeydown);
+  // Focus management: focus close button when dialog opens
+  $effect(() => {
+    if (show && closeButtonRef) {
+      // Small delay to ensure element is rendered
+      requestAnimationFrame(() => {
+        closeButtonRef?.focus();
+      });
+    }
   });
 </script>
 
 {#if show}
   <!-- Backdrop -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-0 md:p-4"
     onclick={onClose}
-    onkeydown={handleKeydown}
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="help-dialog-title"
+    onkeydown={handleBackdropKeydown}
   >
-    <!-- Outer wrapper: clips scrollbar at rounded corners -->
+    <!-- Outer wrapper: dialog container with proper accessibility -->
     <div
       class="help-popup-wrapper sketch-container max-w-md w-full max-h-[85vh] md:max-h-[75vh] rounded-xl overflow-hidden m-4"
       onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => e.stopPropagation()}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="help-dialog-title"
     >
       <!-- Inner scrollable container - only scroll when needed -->
       <div class="help-popup-scroll h-full max-h-[85vh] md:max-h-[75vh] overflow-y-auto">
@@ -66,6 +65,7 @@
             <h2 id="help-dialog-title" class="text-base font-bold text-white truncate">How It Works</h2>
           </div>
           <button
+            bind:this={closeButtonRef}
             onclick={onClose}
             class="w-8 h-8 rounded-md hover:bg-slate-700/50 flex items-center justify-center transition-colors"
             aria-label="Close"
