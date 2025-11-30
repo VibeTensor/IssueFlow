@@ -5,6 +5,73 @@ All notable changes to IssueFlow will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-11-30
+
+### Added
+
+- **Empty State System** (#30): Comprehensive empty state with context-aware illustrations
+  - 5 variants: initial, no-results, error, rate-limited, success
+  - Custom SVG illustrations matching sketch-style design
+  - Animated floating illustrations with CSS animations
+  - WCAG 2.1 accessible with ARIA live regions
+  - prefers-reduced-motion support
+
+- **Footer Component** (#21): Professional footer with links and social sharing
+  - Version display synced with package.json
+  - Social sharing buttons (Twitter, LinkedIn, copy link)
+  - VibeTensor Private Limited attribution
+  - External links with proper accessibility attributes
+
+- **Zero-Comment Highlighting** (#20): Visual indicators for issues with no comments
+  - Green badge for zero-comment issues (great for first-timers)
+  - Filter toggle to show only zero-comment issues
+  - Sort option by comment count
+
+- **Smart Relative Time Display** (#17): Human-friendly date formatting
+  - Relative time display (Today, Yesterday, X days ago)
+  - Freshness indicators (green/amber/gray dots)
+  - Tooltip with exact date on hover
+  - Screen reader accessible
+
+- **Auto-Focus & URL Validation** (#16): Improved search UX
+  - Auto-focus on repository URL input on page load
+  - Real-time URL validation with debouncing
+  - Visual feedback (green checkmark/red warning)
+  - Accessible error messages
+
+- **Export Issues Feature** (#10): Download issue links
+  - Export to Markdown format
+  - Export to JSON format
+  - Export to plain text
+  - Copy all links to clipboard
+
+- **Copy Issue Link Button** (#14): One-click copy for individual issues
+  - Copy button on each issue card
+  - Visual feedback on copy success
+  - Keyboard accessible
+
+### Changed
+
+- **Brand Redesign**: New IssueFlow identity
+  - New logo: Issues flowing through pipeline (S-curve with three nodes)
+  - Monochromatic teal color palette (#0d9488, #14b8a6)
+  - Updated favicon and Open Graph image
+  - Streamlined documentation
+
+- **Component Architecture** (#35): Improved code organization
+  - Decomposed ResultsList.svelte into modular components
+  - SearchForm, IssueCard, ExportMenu, FilterControls separated
+  - Better maintainability and testability
+
+### Technical
+
+- 403 unit tests covering all utility functions
+- 54+ E2E tests for browser-based validation
+- Improved test coverage for edge cases
+- Updated .gitignore for cleaner repository
+
+---
+
 ## [1.0.0] - 2025-01-10
 
 ### Added
@@ -86,6 +153,9 @@ Planned features for future releases:
 - [ ] Multi-repository search
 - [ ] GitHub trending integration
 - [ ] Contribution analytics
+- [ ] Keyboard shortcuts
+- [ ] Offline support (PWA)
+- [ ] Issue difficulty estimation
 
 ---
 

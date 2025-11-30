@@ -1,6 +1,6 @@
 {
   "name": "issueflow",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Find unassigned open GitHub issues without pull requests - your gateway to open-source contribution",
   "type": "module",
   "author": "ascender1729 <https://github.com/ascender1729>",
