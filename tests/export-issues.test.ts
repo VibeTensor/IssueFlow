@@ -328,15 +328,20 @@ describe('Export Issues Functionality', () => {
 });
 
 describe('File Download Functionality', () => {
-  let mockCreateObjectURL: ReturnType<typeof vi.fn>;
-  let mockRevokeObjectURL: ReturnType<typeof vi.fn>;
-  let mockAppendChild: ReturnType<typeof vi.fn>;
-  let mockRemoveChild: ReturnType<typeof vi.fn>;
-  let mockClick: ReturnType<typeof vi.fn>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let mockCreateObjectURL: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let mockRevokeObjectURL: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let mockAppendChild: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let mockRemoveChild: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let mockClick: any;
 
   beforeEach(() => {
-    mockCreateObjectURL = vi.fn<[Blob | MediaSource], string>().mockReturnValue('blob:test-url');
-    mockRevokeObjectURL = vi.fn<[string], void>();
+    mockCreateObjectURL = vi.fn().mockReturnValue('blob:test-url');
+    mockRevokeObjectURL = vi.fn();
     mockAppendChild = vi.fn();
     mockRemoveChild = vi.fn();
     mockClick = vi.fn();
