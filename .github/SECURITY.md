@@ -17,7 +17,7 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 
 **Preferred Method:** Use GitHub's Security Advisory feature by clicking the "Report a vulnerability" button in the [Security tab](https://github.com/VibeTensor/IssueFlow/security/advisories/new).
 
-**Alternative Method:** Email <security@vibetensor.com> with "SECURITY" in the subject line.
+**Alternative Method:** Email <info@vibetensor.com> with "SECURITY" in the subject line.
 
 ### What to Include
 
