@@ -331,7 +331,8 @@
       case 'markdown':
         content = issues
           .map(
-            (issue) => `- [#${issue.number} ${issue.title.replace(/[[\]]/g, '\\$&')}](${issue.url})`
+            (issue) =>
+              `- [#${issue.number} ${issue.title.replaceAll('[', '\\[').replaceAll(']', '\\]')}](${issue.url})`
           )
           .join('\n');
         downloadFile(content, `${repoName}-issues-${timestamp}.md`, 'text/markdown');
