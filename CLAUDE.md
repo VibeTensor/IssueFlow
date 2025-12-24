@@ -61,7 +61,9 @@ tests/
 ## Key Files
 
 - `src/lib/github-graphql.ts` - GitHub API integration
+- `src/lib/search-history.ts` - localStorage-based search history utility
 - `src/components/results/ResultsContainer.svelte` - Main results component
+- `src/components/shared/SearchHistory.svelte` - Search history dropdown component
 - `eslint.config.js` - ESLint flat config
 - `.prettierrc` - Prettier configuration
 
