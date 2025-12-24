@@ -52,7 +52,8 @@ test-results/
 .cache/
 
 # Claude/AI workflow files
-.claude/
+.claude/*
+!.claude/rules/
 IMPLEMENTATION_GUIDE.md
 ISSUE_*_IMPLEMENTATION_GUIDE.md
 ISSUE_*_IMPLEMENTATION_PLAN.md
@@ -74,3 +75,4 @@ ISSUE_WORKFLOW.md
 
 # Windows null file
 nul
+CLAUDE.local.md
