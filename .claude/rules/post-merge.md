@@ -18,7 +18,7 @@ git log --oneline --graph -10
 
 Expected pattern (CORRECT - used --merge):
 
-```
+```text
 *   abc1234 Merge pull request #XX from VibeTensor/branch-name
 |\
 | * def5678 commit message
@@ -28,7 +28,7 @@ Expected pattern (CORRECT - used --merge):
 
 Wrong pattern (INCORRECT - used --squash):
 
-```
+```text
 * abc1234 commit message (#XX)
 * previous-commit
 ```
@@ -188,13 +188,13 @@ Progress % = Earned So Far / Target x 100
 
 ### Format:
 
-```
+```text
 [Your Name] | IssueFlow Issue #XX | [Issue Title] ([total]min)
 ```
 
 ### Example:
 
-```
+```text
 Pavan Kumar | IssueFlow Issue #38 | [DOCS] Update README with November 2025 features (81min)
 ```
 

@@ -5,7 +5,7 @@
 IssueFlow is a GitHub issue discovery tool that helps developers find beginner-friendly issues.
 
 - **Repository**: VibeTensor/IssueFlow
-- **URL**: https://github.com/VibeTensor/IssueFlow
+- **URL**: [https://github.com/VibeTensor/IssueFlow](https://github.com/VibeTensor/IssueFlow)
 - **Stack**: Astro 5, Svelte 5, TypeScript, UnoCSS
 
 ## Tech Stack

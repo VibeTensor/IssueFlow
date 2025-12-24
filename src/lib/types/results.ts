@@ -128,4 +128,5 @@ export interface SearchHistoryProps {
   onSelect: (item: SearchHistoryItem) => void;
   onDelete: (owner: string, repo: string) => void;
   onClear: () => void;
+  onClose: () => void;
 }
