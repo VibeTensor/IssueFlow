@@ -1,8 +1,19 @@
 # SOP Workflow Rules - Complete Implementation Guide
 
-## Document Version: 2.6
+## Document Version: 2.7
 
 This is the authoritative workflow for implementing GitHub issues. Every issue MUST follow these phases. DO NOT skip or combine phases.
+
+## Auto-Continue Rule (MANDATORY)
+
+**CRITICAL:** If the user does not respond for more than 7 minutes after a phase completion:
+
+1. DO NOT ask for confirmation again
+2. DO NOT wait any longer
+3. AUTOMATICALLY continue to the next phase/step
+4. Keep working until the task is complete
+
+This rule applies to ALL phases and steps. Never wait indefinitely. Keep the workflow moving.
 
 ## Pre-Implementation Phase (Steps 1-4)
 
@@ -115,13 +126,16 @@ After completing each phase:
 - Ask user to visually review the changes
 - Wait for explicit confirmation: "Proceed to next phase"
 
+**AUTO-CONTINUE RULE:** If the user does not respond within 7 minutes, automatically proceed to the next phase. Do not wait indefinitely.
+
 Example prompt:
 
 ```
 "Phase X complete. Changes made:
  - [List of changes]
  Research document updated.
- Please review and confirm to proceed to Phase X+1."
+ Please review and confirm to proceed to Phase X+1.
+ (Auto-continuing in 7 minutes if no response)"
 ```
 
 ## Post-Implementation Phase (Steps 5-6)
@@ -268,7 +282,7 @@ Document all learnings, commands used, and statistics.
 - [ ] Web search (5-10 searches)
 - [ ] Implement
 - [ ] Document in research file
-- [ ] User confirmation received
+- [ ] User confirmation received (or auto-continue after 7 min)
 
 ### Pre-PR
 

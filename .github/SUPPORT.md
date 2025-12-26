@@ -18,6 +18,7 @@ Thanks for using IssueFlow! Here are ways to get help:
 ### Bug Reports
 
 If you've found a bug:
+
 1. Check [existing issues](https://github.com/VibeTensor/IssueFlow/issues) to avoid duplicates
 2. Use the [bug report template](https://github.com/VibeTensor/IssueFlow/issues/new?template=bug_report.md)
 3. Include steps to reproduce, expected vs actual behavior, and environment details
@@ -25,6 +26,7 @@ If you've found a bug:
 ### Feature Requests
 
 To suggest a new feature:
+
 1. Check [existing discussions](https://github.com/VibeTensor/IssueFlow/discussions/categories/ideas)
 2. Use the [feature request template](https://github.com/VibeTensor/IssueFlow/issues/new?template=feature_request.md)
 
@@ -34,12 +36,12 @@ For security vulnerabilities, please see our [Security Policy](https://github.co
 
 ## Response Times
 
-| Type | Expected Response |
-|------|-------------------|
-| Security issues | 24-48 hours |
-| Bug reports | 3-5 business days |
-| Feature requests | 1-2 weeks |
-| General questions | 3-7 days |
+| Type              | Expected Response |
+| ----------------- | ----------------- |
+| Security issues   | 24-48 hours       |
+| Bug reports       | 3-5 business days |
+| Feature requests  | 1-2 weeks         |
+| General questions | 3-7 days          |
 
 ## Code of Conduct
 
