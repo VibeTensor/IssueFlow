@@ -306,20 +306,24 @@ export function downloadExport(format: ExportFormat): void {
 
   const filename = `issueflow-search-history-${getDateString()}.${extension}`;
 
-  // Create Blob and download
-  const blob = new Blob([content], { type: mimeType });
-  const url = URL.createObjectURL(blob);
+  try {
+    // Create Blob and download
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
 
-  // Create temporary anchor element to trigger download
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.style.display = 'none';
+    // Create temporary anchor element to trigger download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
 
-  document.body.appendChild(link);
-  link.click();
+    document.body.appendChild(link);
+    link.click();
 
-  // Cleanup: remove element and revoke URL to free memory
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+    // Cleanup: remove element and revoke URL to free memory
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('[SearchHistory] Failed to download export:', error);
+  }
 }
