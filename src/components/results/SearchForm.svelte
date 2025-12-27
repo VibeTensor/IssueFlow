@@ -527,8 +527,13 @@
     </button>
 
     <!-- Keyboard shortcut hint (Issue #166) -->
-    <div class="keyboard-hint hidden md:flex">
-      Press <kbd>Enter</kbd> to search
+    <div
+      class="hidden md:flex justify-center items-center gap-1 mt-2 text-[0.625rem] text-slate-500"
+    >
+      Press <kbd
+        class="inline-flex items-center justify-center px-1.5 py-0.5 bg-slate-700/40 border border-slate-600/30 rounded text-[0.5625rem] text-slate-400"
+        >Enter</kbd
+      > to search
     </div>
   </div>
 </div>
@@ -555,28 +560,5 @@
   .quick-pick-chip:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-  }
-
-  /* Keyboard shortcut hint (Issue #166) */
-  .keyboard-hint {
-    justify-content: center;
-    align-items: center;
-    gap: 0.25rem;
-    margin-top: 0.5rem;
-    font-size: 0.625rem;
-    color: #64748b;
-  }
-
-  .keyboard-hint kbd {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.125rem 0.375rem;
-    background: rgba(71, 85, 105, 0.4);
-    border: 1px solid rgba(100, 116, 139, 0.3);
-    border-radius: 0.1875rem;
-    font-family: inherit;
-    font-size: 0.5625rem;
-    color: #94a3b8;
   }
 </style>
