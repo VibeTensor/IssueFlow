@@ -1,6 +1,7 @@
 <!--
   ResultsContainer Component
   Issue #35 - Main orchestrator extracted from ResultsList.svelte
+  Issue #163 - Updated results header to show "Found X beginner-friendly issues"
 
   Responsibilities:
   - State management (issues, loading, error, filters)
@@ -671,8 +672,8 @@
       <div class="flex items-center justify-between mb-3">
         <div>
           <h2 class="text-base lg:text-lg font-bold text-white">
-            {displayedIssues.length}
-            {displayedIssues.length === 1 ? 'Issue' : 'Issues'}
+            Found {displayedIssues.length} beginner-friendly
+            {displayedIssues.length === 1 ? 'issue' : 'issues'}
             {#if showOnlyZeroComments && displayedIssues.length !== issues.length}
               <span class="text-xs text-slate-500 font-normal">of {issues.length}</span>
             {/if}
@@ -684,9 +685,10 @@
       </div>
 
       <div aria-live="polite" aria-atomic="true" class="sr-only" role="status">
-        Showing {displayedIssues.length} issues{showOnlyZeroComments
-          ? ', filtered to easy issues'
-          : ''}{sortOrder !== 'default'
+        Found {displayedIssues.length} beginner-friendly {displayedIssues.length === 1
+          ? 'issue'
+          : 'issues'}{showOnlyZeroComments ? ', filtered to easy issues' : ''}{sortOrder !==
+        'default'
           ? `, sorted by ${sortOrder === 'asc' ? 'fewest' : 'most'} comments`
           : ''}
       </div>
