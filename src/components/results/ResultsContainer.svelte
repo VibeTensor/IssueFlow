@@ -672,7 +672,7 @@
       <div class="flex items-center justify-between mb-3">
         <div>
           <h2 class="text-base lg:text-lg font-bold text-white">
-            Found {displayedIssues.length} beginner-friendly
+            Found {displayedIssues.length} available
             {displayedIssues.length === 1 ? 'issue' : 'issues'}
             {#if showOnlyZeroComments && displayedIssues.length !== issues.length}
               <span class="text-xs text-slate-500 font-normal">of {issues.length}</span>
@@ -685,7 +685,7 @@
       </div>
 
       <div aria-live="polite" aria-atomic="true" class="sr-only" role="status">
-        Found {displayedIssues.length} beginner-friendly {displayedIssues.length === 1
+        Found {displayedIssues.length} available {displayedIssues.length === 1
           ? 'issue'
           : 'issues'}{showOnlyZeroComments ? ', filtered to easy issues' : ''}{sortOrder !==
         'default'
