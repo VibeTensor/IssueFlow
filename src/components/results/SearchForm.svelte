@@ -4,10 +4,11 @@
   Issue #62 - Added search history dropdown
   Issue #162 - Updated placeholder with example repository suggestions
   Issue #188 - Load and pre-fill last searched repository
+  Issue #166 - Added keyboard shortcut hint for Enter key
 
   Search form with repository URL input, GitHub token input,
   popular repo quick-select chips, real-time URL validation,
-  and search history dropdown.
+  search history dropdown, and keyboard shortcut hint.
 -->
 
 <script lang="ts">
@@ -524,6 +525,16 @@
         {/if}
       </span>
     </button>
+
+    <!-- Keyboard shortcut hint (Issue #166) -->
+    <div
+      class="hidden md:flex justify-center items-center gap-1 mt-2 text-[0.625rem] text-slate-500"
+    >
+      Press <kbd
+        class="inline-flex items-center justify-center px-1.5 py-0.5 bg-slate-700/40 border border-slate-600/30 rounded text-[0.5625rem] text-slate-400"
+        >Enter</kbd
+      > to search
+    </div>
   </div>
 </div>
 
