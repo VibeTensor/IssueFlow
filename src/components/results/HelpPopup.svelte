@@ -54,7 +54,21 @@
       });
     }
   });
+
+  /**
+   * Global keydown handler for ESC key - works regardless of focus location
+   * Closes modal when ESC is pressed and modal is visible
+   */
+  function handleGlobalKeydown(event: KeyboardEvent) {
+    if (show && event.key === 'Escape') {
+      event.preventDefault();
+      onClose();
+    }
+  }
 </script>
+
+<!-- Global ESC key handler - closes modal from anywhere when visible -->
+<svelte:window onkeydown={handleGlobalKeydown} />
 
 {#if show}
   <!-- Backdrop -->
