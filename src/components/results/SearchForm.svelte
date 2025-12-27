@@ -2,6 +2,7 @@
   SearchForm Component
   Issue #35 - Extracted from ResultsList.svelte
   Issue #62 - Added search history dropdown
+  Issue #188 - Load and pre-fill last searched repository
 
   Search form with repository URL input, GitHub token input,
   popular repo quick-select chips, real-time URL validation,
@@ -11,7 +12,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { validateRepoUrl } from '../../lib/github-graphql';
-  import { getHistory, removeFromHistory, clearHistory } from '../../lib/search-history';
+  import {
+    getHistory,
+    removeFromHistory,
+    clearHistory,
+    getLastSearchedRepo,
+    clearLastSearchedRepo
+  } from '../../lib/search-history';
   import { SearchHistory } from '../shared';
   import type { ValidationState, SearchHistoryItem } from '../../lib/types/results';
 
@@ -80,10 +87,11 @@
       clearTimeout(validationTimeout);
     }
 
-    // If empty, reset to idle immediately
+    // If empty, reset to idle immediately and clear saved repo (Issue #188)
     if (!newUrl.trim()) {
       validationState = 'idle';
       validationMessage = '';
+      clearLastSearchedRepo();
       return;
     }
 
@@ -249,11 +257,24 @@
     }, 2000);
   }
 
-  // Auto-focus the repository URL input on mount and cleanup timeouts
+  // Auto-focus the repository URL input on mount, load last searched repo, and cleanup timeouts
   onMount(() => {
     if (repoUrlInput) {
       repoUrlInput.focus();
     }
+
+    // Load last searched repo if input is empty (Issue #188)
+    if (!repoUrl || repoUrl.trim() === '') {
+      const lastRepo = getLastSearchedRepo();
+      if (lastRepo) {
+        onUrlChange(lastRepo);
+        // Validate immediately for consistent UX
+        const result = validateRepoUrl(lastRepo);
+        validationState = result.state;
+        validationMessage = result.message || '';
+      }
+    }
+
     return () => {
       if (validationTimeout) {
         clearTimeout(validationTimeout);
