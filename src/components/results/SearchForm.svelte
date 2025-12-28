@@ -61,14 +61,13 @@
     onFilterQueryChange
   }: Props = $props();
 
-  // Popular repositories for quick selection
+  // Popular repositories for quick selection (5 top choices)
   const POPULAR_REPOS = [
     { name: 'facebook/react', label: 'React' },
     { name: 'microsoft/vscode', label: 'VS Code' },
     { name: 'vercel/next.js', label: 'Next.js' },
     { name: 'sveltejs/svelte', label: 'Svelte' },
-    { name: 'tailwindlabs/tailwindcss', label: 'Tailwind' },
-    { name: 'nodejs/node', label: 'Node.js' }
+    { name: 'tailwindlabs/tailwindcss', label: 'Tailwind' }
   ];
 
   // Local state for validation
@@ -363,7 +362,7 @@
           type="text"
           value={repoUrl}
           placeholder="Try: facebook/react, microsoft/vscode"
-          class="sketch-input w-full pl-8 pr-20 py-2 text-xs text-white rounded-md outline-none bg-slate-800/80 placeholder-slate-500 {validationState ===
+          class="sketch-input w-full pl-8 pr-14 py-2 text-xs text-white rounded-md outline-none bg-slate-800/80 placeholder-slate-500 {validationState ===
           'valid'
             ? 'border-green-500/50'
             : validationState === 'invalid'
@@ -382,7 +381,7 @@
             type="button"
             tabindex="-1"
             onclick={handleClearInput}
-            class="absolute inset-y-0 right-12 flex items-center cursor-pointer rounded
+            class="absolute inset-y-0 right-7 flex items-center cursor-pointer rounded
                    focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-400
                    hover:text-slate-300 transition-colors"
             aria-label="Clear search"
@@ -409,7 +408,7 @@
           <button
             type="button"
             onclick={handleCopyUrl}
-            class="absolute inset-y-0 right-6 flex items-center cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-400 rounded"
+            class="absolute inset-y-0 right-2 flex items-center cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-400 rounded"
             aria-label="Copy repository URL to clipboard"
             title={copied ? 'Copied!' : 'Copy URL'}
           >
@@ -452,41 +451,7 @@
             {copied ? 'Repository URL copied to clipboard' : ''}
           </span>
         {/if}
-        {#if validationState === 'valid'}
-          <div class="absolute inset-y-0 right-0 pr-10 flex items-center pointer-events-none">
-            <svg
-              class="h-3.5 w-3.5 text-green-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2.5"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-        {:else if validationState === 'invalid'}
-          <div class="absolute inset-y-0 right-0 pr-10 flex items-center pointer-events-none">
-            <svg
-              class="h-3.5 w-3.5 text-red-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
-          </div>
-        {/if}
+        <!-- Validation icons removed - validation state shown in label area above -->
 
         <!-- Search History Dropdown (Issue #62) -->
         <SearchHistory
@@ -588,17 +553,17 @@
       />
     </div>
 
-    <!-- Search Button - Brand Primary Action -->
+    <!-- Search Button - Compact Brand Primary Action -->
     <button
       onclick={onSearch}
       disabled={!canSubmit}
-      class="w-full py-2.5 px-4 rounded-lg font-semibold text-sm transition-all {canSubmit
-        ? 'bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-500/25'
+      class="w-full py-1.5 px-3 rounded-md font-medium text-xs transition-all {canSubmit
+        ? 'bg-teal-600 hover:bg-teal-500 text-white shadow-md shadow-teal-500/20'
         : 'bg-slate-800 text-slate-600 cursor-not-allowed'}"
     >
-      <span class="flex items-center justify-center gap-2">
+      <span class="flex items-center justify-center gap-1.5">
         {#if loading}
-          <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+          <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"
             ></circle>
             <path
@@ -609,7 +574,7 @@
           </svg>
           Searching...
         {:else}
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
