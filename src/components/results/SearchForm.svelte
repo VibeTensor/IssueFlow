@@ -6,10 +6,11 @@
   Issue #188 - Load and pre-fill last searched repository
   Issue #166 - Added keyboard shortcut hint for Enter key
   Issue #121 - Added advanced search filters with FilterBuilder and FilterHelpTooltip
+  Issue #177 - Added clear button (X) to search input
 
   Search form with repository URL input, GitHub token input,
   popular repo quick-select chips, real-time URL validation,
-  search history dropdown, advanced filter builder, and keyboard shortcut hint.
+  search history dropdown, advanced filter builder, clear button, and keyboard shortcut hint.
 -->
 
 <script lang="ts">
@@ -276,6 +277,24 @@
     }, 2000);
   }
 
+  /**
+   * Clear the repository URL input (Issue #177)
+   * Resets validation state and returns focus to input
+   */
+  function handleClearInput() {
+    onUrlChange('');
+    validationState = 'idle';
+    validationMessage = '';
+    clearLastSearchedRepo();
+    // Hide history dropdown if showing
+    showHistory = false;
+    // Clear any pending validation timeout
+    if (validationTimeout) {
+      clearTimeout(validationTimeout);
+    }
+    repoUrlInput?.focus();
+  }
+
   // Auto-focus the repository URL input on mount, load last searched repo, and cleanup timeouts
   onMount(() => {
     if (repoUrlInput) {
@@ -344,7 +363,7 @@
           type="text"
           value={repoUrl}
           placeholder="Try: facebook/react, microsoft/vscode"
-          class="sketch-input w-full pl-8 pr-14 py-2 text-xs text-white rounded-md outline-none bg-slate-800/80 placeholder-slate-500 {validationState ===
+          class="sketch-input w-full pl-8 pr-20 py-2 text-xs text-white rounded-md outline-none bg-slate-800/80 placeholder-slate-500 {validationState ===
           'valid'
             ? 'border-green-500/50'
             : validationState === 'invalid'
@@ -357,6 +376,33 @@
           aria-describedby="repoUrl-hint"
           aria-invalid={validationState === 'invalid'}
         />
+        <!-- Clear input button (Issue #177) -->
+        {#if repoUrl.trim()}
+          <button
+            type="button"
+            tabindex="-1"
+            onclick={handleClearInput}
+            class="absolute inset-y-0 right-12 flex items-center cursor-pointer
+                   focus:outline-none hover:text-slate-300 transition-colors"
+            aria-label="Clear search"
+            title="Clear"
+          >
+            <svg
+              class="h-3.5 w-3.5 text-slate-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        {/if}
         <!-- Copy URL button (Issue #161) -->
         {#if repoUrl.trim()}
           <button
