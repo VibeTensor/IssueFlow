@@ -253,7 +253,9 @@
       class="add-filter-menu flex flex-wrap items-center gap-2 p-3 rounded-lg
              bg-slate-800 border border-slate-600 shadow-2xl shadow-black/50
              max-w-md w-full"
-      role="menu"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Add filter"
       onclick={(e) => e.stopPropagation()}
     >
       <!-- Negation toggle -->
@@ -284,7 +286,6 @@
                    focus:outline-none focus:ring-1 focus:ring-teal-500
                    transition-colors"
               onclick={() => selectFilterType(type)}
-              role="menuitem"
             >
               {FILTER_TYPE_LABELS[type]}
             </button>
