@@ -41,7 +41,6 @@
   let selectedFilterType = $state<FilterType | null>(null);
   let filterValueInput = $state('');
   let isNegated = $state(false);
-  let addMenuRef = $state<HTMLDivElement | null>(null);
   let valueInputRef = $state<HTMLInputElement | null>(null);
 
   // Filter types for the dropdown
@@ -134,17 +133,6 @@
   }
 
   /**
-   * Handle click outside to close menu
-   */
-  function handleClickOutside(event: MouseEvent): void {
-    if (addMenuRef && !addMenuRef.contains(event.target as Node)) {
-      if (showAddMenu && !selectedFilterType) {
-        resetAddForm();
-      }
-    }
-  }
-
-  /**
    * Parse query string and update chips
    * @internal Reserved for future use when query input is added
    */
@@ -155,16 +143,6 @@
       onChipsChange?.(chips);
     }
   }
-
-  // Close menu on outside click
-  $effect(() => {
-    if (showAddMenu) {
-      document.addEventListener('click', handleClickOutside);
-      return () => {
-        document.removeEventListener('click', handleClickOutside);
-      };
-    }
-  });
 </script>
 
 <div class="filter-builder flex flex-wrap items-center gap-2">
@@ -209,7 +187,7 @@
   </div>
 
   <!-- Add filter button -->
-  <div bind:this={addMenuRef}>
+  <div>
     <button
       type="button"
       class="add-filter-btn flex items-center gap-1 px-2 py-1 rounded-md text-sm

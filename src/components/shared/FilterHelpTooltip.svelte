@@ -84,7 +84,7 @@
          focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-1 focus:ring-offset-slate-900
          transition-colors"
   onclick={toggleTooltip}
-  aria-describedby={show ? tooltipId : undefined}
+  aria-controls={tooltipId}
   aria-expanded={show}
   aria-label="Filter syntax help"
   title="Filter syntax help"
@@ -110,7 +110,6 @@
   <div
     class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
     onclick={closeTooltip}
-    onkeydown={handleKeydown}
   >
     <div
       bind:this={tooltipRef}
