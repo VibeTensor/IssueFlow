@@ -382,8 +382,9 @@
             type="button"
             tabindex="-1"
             onclick={handleClearInput}
-            class="absolute inset-y-0 right-12 flex items-center cursor-pointer
-                   focus:outline-none hover:text-slate-300 transition-colors"
+            class="absolute inset-y-0 right-12 flex items-center cursor-pointer rounded
+                   focus:outline-none focus-visible:ring-1 focus-visible:ring-slate-400
+                   hover:text-slate-300 transition-colors"
             aria-label="Clear search"
             title="Clear"
           >
