@@ -129,137 +129,518 @@ const ogImage = `${siteUrl}/og-image.png`;
     <!-- Issue #180 - Global theme transition styles -->
     <style is:global>
       /*
-       * Theme System: App is dark by default
-       * - Dark mode (.dark): Keep original dark slate colors
-       * - Light mode (no .dark): Override to light colors
+       * Theme System using CSS Custom Properties
+       * This approach uses CSS variables that can be overridden globally,
+       * bypassing Svelte's scoped styles.
        */
 
-      /* Smooth theme transitions */
+      /* ========================================
+         CSS CUSTOM PROPERTIES (THEME VARIABLES)
+         ======================================== */
+
+      :root {
+        /* Dark mode colors (default) */
+        --theme-bg-primary: #0f172a;
+        --theme-bg-secondary: #1e293b;
+        --theme-bg-tertiary: #334155;
+        --theme-bg-card: rgba(30, 41, 59, 0.7);
+        --theme-bg-input: rgba(30, 41, 59, 0.8);
+        --theme-text-primary: #ffffff;
+        --theme-text-secondary: #e2e8f0;
+        --theme-text-muted: #94a3b8;
+        --theme-border: rgba(148, 163, 184, 0.25);
+        --theme-shadow: rgba(0, 0, 0, 0.4);
+      }
+
+      html:not(.dark) {
+        /* Light mode colors */
+        --theme-bg-primary: #f8fafc;
+        --theme-bg-secondary: #ffffff;
+        --theme-bg-tertiary: #f1f5f9;
+        --theme-bg-card: #ffffff;
+        --theme-bg-input: #ffffff;
+        --theme-text-primary: #1e293b;
+        --theme-text-secondary: #334155;
+        --theme-text-muted: #64748b;
+        --theme-border: rgba(203, 213, 225, 0.5);
+        --theme-shadow: rgba(0, 0, 0, 0.08);
+      }
+
+      /* ========================================
+         SMOOTH THEME TRANSITIONS
+         ======================================== */
+
       html,
       html *,
       html *::before,
       html *::after {
         transition:
           background-color 0.3s ease,
+          background 0.3s ease,
           color 0.3s ease,
-          border-color 0.3s ease;
+          border-color 0.3s ease,
+          box-shadow 0.3s ease;
       }
 
-      /* Dark mode: Keep app's original dark design */
+      /* ========================================
+         BASE ELEMENT STYLING
+         ======================================== */
+
+      html {
+        background-color: var(--theme-bg-primary);
+      }
+
       html.dark {
-        background-color: #0f172a;
         color-scheme: dark;
       }
 
-      html.dark body {
-        background-color: #0f172a;
-      }
-
-      /* Light mode: Override dark colors to light equivalents */
       html:not(.dark) {
-        background-color: #f8fafc;
         color-scheme: light;
       }
 
-      html:not(.dark) body {
-        background-color: #f8fafc;
+      body {
+        background-color: var(--theme-bg-primary) !important;
+        color: var(--theme-text-primary);
       }
 
-      /* Light mode: Background overrides */
-      html:not(.dark) .bg-slate-900,
-      html:not(.dark) [class*='bg-slate-900'] {
+      /* ========================================
+         LIGHT MODE: AGGRESSIVE WILDCARD OVERRIDES
+         These use !important to override ALL styles
+         ======================================== */
+
+      /* Override ALL elements with dark backgrounds */
+      html:not(.dark) *[style*='background'],
+      html:not(.dark) *[style*='rgba(30'],
+      html:not(.dark) *[style*='rgba(15'],
+      html:not(.dark) *[style*='#0f172a'],
+      html:not(.dark) *[style*='#1e293b'],
+      html:not(.dark) *[style*='#334155'] {
+        background-color: var(--theme-bg-card) !important;
+      }
+
+      /* Background color class overrides */
+      html:not(.dark) [class*='bg-slate-9'] {
         background-color: #ffffff !important;
+        background: #ffffff !important;
       }
 
-      html:not(.dark) .bg-slate-800,
-      html:not(.dark) [class*='bg-slate-800'] {
+      html:not(.dark) [class*='bg-slate-8'] {
         background-color: #f1f5f9 !important;
+        background: #f1f5f9 !important;
       }
 
-      html:not(.dark) .bg-slate-700,
-      html:not(.dark) [class*='bg-slate-700'] {
+      html:not(.dark) [class*='bg-slate-7'] {
         background-color: #e2e8f0 !important;
+        background: #e2e8f0 !important;
       }
 
-      html:not(.dark) .bg-slate-600,
-      html:not(.dark) [class*='bg-slate-600'] {
+      html:not(.dark) [class*='bg-slate-6'] {
         background-color: #cbd5e1 !important;
+        background: #cbd5e1 !important;
       }
 
-      /* Light mode: Text color overrides */
-      html:not(.dark) .text-white,
+      html:not(.dark) [class*='bg-slate-5'] {
+        background-color: #94a3b8 !important;
+        background: #94a3b8 !important;
+      }
+
+      html:not(.dark) [class*='bg-gray-9'] {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+      }
+
+      html:not(.dark) [class*='bg-gray-8'] {
+        background-color: #f1f5f9 !important;
+        background: #f1f5f9 !important;
+      }
+
+      /* Text color overrides */
       html:not(.dark) [class*='text-white'] {
         color: #1e293b !important;
       }
 
-      html:not(.dark) .text-slate-300,
-      html:not(.dark) [class*='text-slate-300'] {
+      html:not(.dark) [class*='text-slate-2'] {
+        color: #334155 !important;
+      }
+
+      html:not(.dark) [class*='text-slate-3'] {
         color: #475569 !important;
       }
 
-      html:not(.dark) .text-slate-400,
-      html:not(.dark) [class*='text-slate-400'] {
+      html:not(.dark) [class*='text-slate-4'] {
         color: #64748b !important;
       }
 
-      html:not(.dark) .text-slate-500,
-      html:not(.dark) [class*='text-slate-500'] {
+      html:not(.dark) [class*='text-slate-5'] {
         color: #64748b !important;
       }
 
-      /* Light mode: Border overrides */
-      html:not(.dark) .border-slate-700,
-      html:not(.dark) [class*='border-slate-700'] {
+      /* Border color overrides */
+      html:not(.dark) [class*='border-slate'] {
         border-color: #cbd5e1 !important;
       }
 
-      html:not(.dark) .border-slate-600,
-      html:not(.dark) [class*='border-slate-600'] {
-        border-color: #e2e8f0 !important;
+      /* Ring offset overrides */
+      html:not(.dark) [class*='ring-offset-slate'] {
+        --un-ring-offset-color: #ffffff !important;
+        --tw-ring-offset-color: #ffffff !important;
       }
 
-      /* Light mode: Input styling */
+      /* ========================================
+         SKETCH CARD OVERRIDE (CRITICAL)
+         Uses higher specificity to override component styles
+         ======================================== */
+
+      html:not(.dark) .sketch-card,
+      html:not(.dark) [class*='sketch-card'],
+      html:not(.dark) div.sketch-card,
+      html:not(.dark) article.sketch-card {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+      }
+
+      html:not(.dark) .sketch-card::before,
+      html:not(.dark) [class*='sketch-card']::before {
+        border-color: rgba(203, 213, 225, 0.6) !important;
+      }
+
+      /* Card front/back for flip cards */
+      html:not(.dark) .card-front,
+      html:not(.dark) .card-back,
+      html:not(.dark) [class*='card-front'],
+      html:not(.dark) [class*='card-back'] {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+      }
+
+      /* ========================================
+         INPUT & FORM ELEMENTS
+         ======================================== */
+
       html:not(.dark) input,
       html:not(.dark) textarea,
-      html:not(.dark) select {
+      html:not(.dark) select,
+      html:not(.dark) .sketch-input,
+      html:not(.dark) [class*='sketch-input'] {
+        background: #ffffff !important;
         background-color: #ffffff !important;
         color: #1e293b !important;
         border-color: #cbd5e1 !important;
       }
 
       html:not(.dark) input::placeholder,
-      html:not(.dark) textarea::placeholder {
+      html:not(.dark) textarea::placeholder,
+      html:not(.dark) .sketch-input::placeholder {
         color: #94a3b8 !important;
       }
 
-      /* Light mode: Sketch card styles */
-      html:not(.dark) .sketch-card {
-        background-color: #ffffff !important;
-        border-color: #e2e8f0 !important;
+      html:not(.dark) input:focus,
+      html:not(.dark) textarea:focus,
+      html:not(.dark) .sketch-input:focus {
+        border-color: #94a3b8 !important;
+        outline-color: #0d9488 !important;
       }
 
-      html:not(.dark) .sketch-input {
-        background-color: #f8fafc !important;
+      /* ========================================
+         BUTTONS
+         ======================================== */
+
+      html:not(.dark) button[class*='bg-slate'],
+      html:not(.dark) button[class*='bg-gray'] {
+        background: #e2e8f0 !important;
+        background-color: #e2e8f0 !important;
         color: #1e293b !important;
       }
 
-      /* Light mode: Quick pick chips */
-      html:not(.dark) .quick-pick-chip {
+      html:not(.dark) button[class*='bg-slate']:hover,
+      html:not(.dark) button[class*='bg-gray']:hover {
+        background: #cbd5e1 !important;
+        background-color: #cbd5e1 !important;
+      }
+
+      /* Keep teal/primary buttons as-is */
+      html:not(.dark) button[class*='bg-teal'],
+      html:not(.dark) button[class*='bg-green'],
+      html:not(.dark) a[class*='bg-teal'],
+      html:not(.dark) a[class*='bg-green'] {
+        color: #ffffff !important;
+      }
+
+      /* ========================================
+         QUICK PICK CHIPS
+         ======================================== */
+
+      html:not(.dark) .quick-pick-chip,
+      html:not(.dark) [class*='quick-pick'] {
+        background: #e2e8f0 !important;
         background-color: #e2e8f0 !important;
         color: #475569 !important;
       }
 
-      /* Light mode: Shadows */
-      html:not(.dark) [class*='shadow'] {
-        --tw-shadow-color: rgba(0, 0, 0, 0.1);
+      html:not(.dark) .quick-pick-chip:hover:not(:disabled),
+      html:not(.dark) [class*='quick-pick']:hover:not(:disabled) {
+        background: #cbd5e1 !important;
+        background-color: #cbd5e1 !important;
       }
 
-      /* Light mode: Links */
-      html:not(.dark) a {
+      /* ========================================
+         FOOTER
+         ======================================== */
+
+      html:not(.dark) footer,
+      html:not(.dark) .footer,
+      html:not(.dark) [class*='footer'] {
+        background: #f1f5f9 !important;
+        background-color: #f1f5f9 !important;
+        border-top-color: #e2e8f0 !important;
+      }
+
+      html:not(.dark) .nav-link,
+      html:not(.dark) .company,
+      html:not(.dark) footer a:not([class*='text-teal']) {
+        color: #475569 !important;
+      }
+
+      html:not(.dark) .nav-link:hover,
+      html:not(.dark) .company:hover,
+      html:not(.dark) footer a:hover {
+        color: #0d9488 !important;
+      }
+
+      html:not(.dark) .share-btn,
+      html:not(.dark) .share-label {
+        color: #64748b !important;
+      }
+
+      html:not(.dark) .share-btn:hover {
+        color: #0d9488 !important;
+      }
+
+      html:not(.dark) .product {
+        color: #0d9488 !important;
+      }
+
+      html:not(.dark) .by {
+        color: #64748b !important;
+      }
+
+      html:not(.dark) .version {
+        color: #0d9488 !important;
+        background: rgba(13, 148, 136, 0.15) !important;
+      }
+
+      /* ========================================
+         DROPDOWNS, MENUS, POPUPS
+         ======================================== */
+
+      html:not(.dark) [role='menu'],
+      html:not(.dark) [role='listbox'],
+      html:not(.dark) [class*='dropdown'],
+      html:not(.dark) [class*='popup'],
+      html:not(.dark) [class*='modal'],
+      html:not(.dark) [class*='tooltip']:not([role='tooltip']),
+      html:not(.dark) [class*='menu'] {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        border-color: #e2e8f0 !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+      }
+
+      /* Keep tooltips with dark background for contrast */
+      html:not(.dark) [role='tooltip'] {
+        background: #1e293b !important;
+        color: #ffffff !important;
+      }
+
+      /* ========================================
+         SIDEBAR & PANELS
+         ======================================== */
+
+      html:not(.dark) .sidebar-panel,
+      html:not(.dark) [class*='sidebar'],
+      html:not(.dark) [class*='panel'] {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        border-color: #e2e8f0 !important;
+      }
+
+      /* ========================================
+         TOAST NOTIFICATIONS
+         ======================================== */
+
+      html:not(.dark) .toast,
+      html:not(.dark) [class*='toast'] {
+        background: #ffffff !important;
+        color: #1e293b !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+      }
+
+      /* ========================================
+         LOADING & SKELETON STATES
+         ======================================== */
+
+      html:not(.dark) [class*='loading'],
+      html:not(.dark) [class*='skeleton'] {
+        background: #f1f5f9 !important;
+      }
+
+      html:not(.dark) [class*='animate-pulse'] {
+        background: #e2e8f0 !important;
+      }
+
+      /* ========================================
+         ZERO COMMENT / EASY ISSUE HIGHLIGHTS
+         ======================================== */
+
+      html:not(.dark) .zero-comment-highlight,
+      html:not(.dark) [class*='zero-comment'] {
+        background: #ffffff !important;
+      }
+
+      html:not(.dark) .hover-effect:hover {
+        background: #f8fafc !important;
+      }
+
+      /* ========================================
+         ISSUE LABELS (keep original colors)
+         ======================================== */
+
+      /* Labels with inline styles keep their colors */
+      html:not(.dark) span[style*='background-color: #'] {
+        /* Keep original label colors */
+      }
+
+      /* ========================================
+         SCROLLBAR STYLING
+         ======================================== */
+
+      html:not(.dark) ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+
+      html:not(.dark) ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+
+      html:not(.dark) ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 5px;
+        border: 2px solid #f1f5f9;
+      }
+
+      html:not(.dark) ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+
+      /* Firefox scrollbar */
+      html:not(.dark) * {
+        scrollbar-color: #cbd5e1 #f1f5f9;
+        scrollbar-width: thin;
+      }
+
+      /* ========================================
+         SHADOWS
+         ======================================== */
+
+      html:not(.dark) [class*='shadow'] {
+        --tw-shadow-color: rgba(0, 0, 0, 0.1) !important;
+        --un-shadow-color: rgba(0, 0, 0, 0.1) !important;
+      }
+
+      /* ========================================
+         SVG ICONS IN DARK CONTAINERS
+         ======================================== */
+
+      html:not(.dark) svg[class*='text-slate'] {
+        color: #64748b !important;
+      }
+
+      /* ========================================
+         LINKS
+         ======================================== */
+
+      html:not(.dark) a:not([class*='text-teal']):not([class*='text-green']):not([class*='text-amber']):not([class*='bg-']) {
         color: #2563eb;
       }
 
-      /* Respect reduced motion preference */
+      html:not(.dark) a:not([class*='text-teal']):not([class*='text-green']):not([class*='text-amber']):not([class*='bg-']):hover {
+        color: #1d4ed8;
+      }
+
+      /* ========================================
+         DIVIDERS & SEPARATORS
+         ======================================== */
+
+      html:not(.dark) hr {
+        border-color: #e2e8f0 !important;
+      }
+
+      html:not(.dark) [class*='divide-slate'] > * + * {
+        border-color: #e2e8f0 !important;
+      }
+
+      /* ========================================
+         CODE BLOCKS
+         ======================================== */
+
+      html:not(.dark) code,
+      html:not(.dark) pre {
+        background: #f1f5f9 !important;
+        color: #1e293b !important;
+      }
+
+      /* ========================================
+         BADGES & CHIPS
+         ======================================== */
+
+      html:not(.dark) [class*='rounded-full'][class*='bg-slate'] {
+        background: #e2e8f0 !important;
+        color: #475569 !important;
+      }
+
+      /* Issue number badges */
+      html:not(.dark) span[class*='rounded'][class*='bg-slate-7'] {
+        background: #e2e8f0 !important;
+        color: #1e293b !important;
+      }
+
+      /* ========================================
+         SEARCH HISTORY
+         ======================================== */
+
+      html:not(.dark) .search-history,
+      html:not(.dark) [class*='history'] {
+        background: #ffffff !important;
+        border-color: #e2e8f0 !important;
+      }
+
+      /* ========================================
+         EXPORT MENU
+         ======================================== */
+
+      html:not(.dark) .export-menu,
+      html:not(.dark) [class*='export'] {
+        background: #ffffff !important;
+      }
+
+      /* ========================================
+         FILTER CONTROLS
+         ======================================== */
+
+      html:not(.dark) [class*='filter'] {
+        background: transparent;
+      }
+
+      html:not(.dark) [class*='filter'][class*='bg-slate'] {
+        background: #f1f5f9 !important;
+      }
+
+      /* ========================================
+         REDUCED MOTION PREFERENCE
+         ======================================== */
+
       @media (prefers-reduced-motion: reduce) {
         html,
         html *,
