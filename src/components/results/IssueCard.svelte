@@ -2,6 +2,7 @@
   IssueCard Component
   Issue #35 - Extracted from ResultsList.svelte
   Issue #125 - Added flip animation to show issue details
+  Issue #181 - Added "Good First Issue" badge for beginner-friendly issues
 
   Displays a single GitHub issue with:
   - Issue number badge
@@ -11,6 +12,7 @@
   - Labels
   - Copy and View action buttons
   - "Easy to Start" badge for zero-comment issues
+  - "Good First Issue" badge for issues with good-first-issue label
   - Flip animation to reveal issue body preview
 -->
 
@@ -51,8 +53,21 @@
     isFlipped = !isFlipped;
   }
 
+  /**
+   * Check if issue has a "good first issue" label (Issue #181)
+   * Handles variations: "good first issue", "good-first-issue", etc.
+   */
+  function hasGoodFirstIssueLabel(): boolean {
+    if (!issue.labels?.nodes) return false;
+    return issue.labels.nodes.some((label) => {
+      const normalized = label.name.toLowerCase().replace(/[\s-]/g, '');
+      return normalized === 'goodfirstissue';
+    });
+  }
+
   // Derived state
   let isEasyIssue = $derived(isZeroComment(issue));
+  let isGoodFirstIssue = $derived(hasGoodFirstIssueLabel());
   let isCopied = $derived(copiedIssueNumber === issue.number);
   let freshnessLevel = $derived(getFreshnessLevel(issue.createdAt));
   let commentText = $derived(
@@ -116,6 +131,12 @@
                 <span
                   class="text-[10px] text-green-400 bg-green-500/15 px-1.5 py-0.5 rounded font-medium"
                   >Easy</span
+                >
+              {/if}
+              {#if isGoodFirstIssue}
+                <span
+                  class="text-[10px] text-white bg-emerald-600 px-1.5 py-0.5 rounded-full font-medium"
+                  title="Great for first-time contributors">Beginner</span
                 >
               {/if}
             </div>
@@ -233,6 +254,12 @@
                 <span
                   class="text-[10px] text-green-400 bg-green-500/15 px-1.5 py-0.5 rounded font-medium"
                   >Easy to Start</span
+                >
+              {/if}
+              {#if isGoodFirstIssue}
+                <span
+                  class="text-[10px] text-white bg-emerald-600 px-1.5 py-0.5 rounded-full font-medium"
+                  title="Great for first-time contributors">Good First Issue</span
                 >
               {/if}
             </div>

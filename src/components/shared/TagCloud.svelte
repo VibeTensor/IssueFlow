@@ -23,35 +23,6 @@
   // Get displayed labels (limited by maxTags)
   let displayedLabels = $derived(labels.slice(0, maxTags));
 
-  // Calculate min and max counts for scaling
-  let minCount = $derived(
-    displayedLabels.length > 0 ? Math.min(...displayedLabels.map((l) => l.count)) : 1
-  );
-  let maxCount = $derived(
-    displayedLabels.length > 0 ? Math.max(...displayedLabels.map((l) => l.count)) : 1
-  );
-
-  /**
-   * Calculate font size using logarithmic scaling
-   * Provides better visual distribution for varying frequencies
-   */
-  function getFontSize(count: number): number {
-    const minSize = 0.75; // rem
-    const maxSize = 1.4; // rem
-
-    if (minCount === maxCount) {
-      return (minSize + maxSize) / 2;
-    }
-
-    // Logarithmic scaling for better distribution
-    const logCount = Math.log(count);
-    const logMin = Math.log(minCount);
-    const logMax = Math.log(maxCount);
-
-    const scale = (logCount - logMin) / (logMax - logMin);
-    return minSize + scale * (maxSize - minSize);
-  }
-
   /**
    * Handle tag click - calls onTagClick callback if provided
    */
@@ -77,10 +48,9 @@
         type="button"
         class="tag-button"
         style="
-          font-size: {getFontSize(label.count)}rem;
-          background-color: #{label.color}20;
+          background-color: #{label.color}40;
           color: #{label.color};
-          border-color: #{label.color}40;
+          border: 1px solid #{label.color}60;
         "
         aria-label={getAriaLabel(label)}
         onclick={() => handleClick(label.name)}
@@ -96,38 +66,37 @@
   .tag-cloud {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.35rem;
     justify-content: center;
-    padding: 0.75rem;
-    background-color: var(--color-bg-secondary, #f8f9fa);
-    border-radius: 0.5rem;
-    border: 1px solid var(--color-border, #e1e4e8);
+    align-items: center;
+    padding: 0.5rem;
   }
 
   .tag-button {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.625rem;
+    gap: 0.2rem;
+    padding: 0.125rem 0.5rem;
     border-radius: 9999px;
-    border: 1px solid;
+    border: none;
     cursor: pointer;
     white-space: nowrap;
     font-weight: 500;
+    font-size: 0.7rem;
     line-height: 1.4;
     transition:
       transform 0.15s ease-out,
-      box-shadow 0.15s ease-out;
+      opacity 0.15s ease-out;
   }
 
   .tag-button:hover {
     transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    opacity: 0.85;
   }
 
   .tag-button:focus-visible {
     outline: 2px solid var(--color-focus, #0969da);
-    outline-offset: 2px;
+    outline-offset: 1px;
   }
 
   .tag-button:active {
@@ -135,8 +104,21 @@
   }
 
   .tag-count {
-    font-size: 0.8em;
-    opacity: 0.7;
+    font-size: 0.9em;
+    opacity: 0.8;
+  }
+
+  /* Mobile: same compact size */
+  @media (max-width: 640px) {
+    .tag-cloud {
+      gap: 0.3rem;
+      padding: 0.4rem;
+    }
+
+    .tag-button {
+      font-size: 0.65rem;
+      padding: 0.1rem 0.4rem;
+    }
   }
 
   /* Reduce motion for accessibility */

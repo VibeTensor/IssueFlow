@@ -45,6 +45,10 @@
     onFilterChipsChange?: (chips: FilterChip[]) => void;
     /** Callback when filter query changes (Issue #121) */
     onFilterQueryChange?: (query: string) => void;
+    /** Rate limit remaining requests */
+    rateLimitRemaining?: number;
+    /** Rate limit reset time string */
+    rateLimitResetTime?: string;
   }
 
   let {
@@ -59,7 +63,9 @@
     filterChips = [],
     filterQuery = '',
     onFilterChipsChange,
-    onFilterQueryChange
+    onFilterQueryChange,
+    rateLimitRemaining,
+    rateLimitResetTime
   }: Props = $props();
 
   // Popular repositories for quick selection (5 top choices)
@@ -484,18 +490,27 @@
 
     <!-- Token Input -->
     <div>
-      <label for="token" class="block text-xs font-medium text-slate-300 mb-1.5">
-        {#if isAuthenticated}
-          <span class="flex items-center gap-1.5">
-            Token
-            <span class="text-[10px] text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded"
-              >5000/hr</span
-            >
+      <div class="flex items-center justify-between mb-1.5">
+        <label for="token" class="text-xs font-medium text-slate-300">
+          {#if isAuthenticated}
+            <span class="flex items-center gap-1.5">
+              Token
+              <span class="text-[10px] text-green-400 bg-green-500/10 px-1.5 py-0.5 rounded"
+                >5000/hr</span
+              >
+            </span>
+          {:else}
+            Token <span class="text-slate-500 text-[10px] font-normal">(optional)</span>
+          {/if}
+        </label>
+        <!-- Rate limit display inline with token -->
+        {#if rateLimitRemaining !== undefined && rateLimitRemaining > 0}
+          <span class="text-[10px] {rateLimitRemaining < 10 ? 'text-amber-400' : 'text-slate-500'}">
+            {rateLimitRemaining} left{#if rateLimitResetTime}
+              · {rateLimitResetTime}{/if}
           </span>
-        {:else}
-          Token <span class="text-slate-500 text-[10px] font-normal">(optional)</span>
         {/if}
-      </label>
+      </div>
       <div class="relative">
         <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
           <svg

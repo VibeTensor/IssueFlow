@@ -31,11 +31,7 @@
   import { showCopiedToast } from '../../lib/toast';
   import GitHubAuth from '../GitHubAuth.svelte';
   import { SVGFilters, EmptyState, LoadingProgress, CancelConfirmModal, TagCloud } from '../shared';
-  import {
-    detectEmptyStateVariant,
-    isRateLimitError,
-    type EmptyStateVariant
-  } from '../../lib/empty-state-utils';
+  import { detectEmptyStateVariant } from '../../lib/empty-state-utils';
   import {
     type ProgressState,
     toCancelledState,
@@ -44,7 +40,7 @@
     REST_MAX_PAGES
   } from '../../lib/loading-progress-utils';
   import { addToHistory, setLastSearchedRepo } from '../../lib/search-history';
-  import { SearchForm, RateLimitDisplay, HelpPopup, IssueCard, IssueCardSkeleton } from './index';
+  import { SearchForm, HelpPopup, IssueCard, IssueCardSkeleton } from './index';
 
   // Core state
   let repoUrl = $state('');
@@ -76,6 +72,11 @@
   // Sort state (Issue #122)
   let sortBy = $state<SortOption>(DEFAULT_SORT_PREFERENCES.sortBy);
   let sortDirection = $state<SortDirection>(DEFAULT_SORT_PREFERENCES.direction);
+  let sortDropdownOpen = $state(false);
+
+  // Labels expansion state
+  let showAllLabels = $state(false);
+  const COLLAPSED_LABEL_COUNT = 6;
 
   // Derived: filtered and sorted issues (Issue #122, #137)
   let displayedIssues = $derived.by(() => {
@@ -512,6 +513,8 @@
         onUrlChange={handleUrlChange}
         onTokenChange={handleTokenChange}
         onShowHelp={toggleHelpPopup}
+        rateLimitRemaining={rateLimit.remaining}
+        rateLimitResetTime={getResetTime(rateLimit.resetAt)}
       />
 
       <!-- Auth prompt - Compact token generation guide -->
@@ -553,157 +556,200 @@
         </div>
       {/if}
 
-      <!-- Rate Limit -->
-      {#if rateLimit.remaining !== undefined && rateLimit.remaining > 0}
-        <RateLimitDisplay
-          remaining={rateLimit.remaining}
-          resetTime={getResetTime(rateLimit.resetAt)}
-        />
-      {/if}
-
-      <!-- Filter/Sort Controls - Compact inline design -->
+      <!-- Filter/Sort Controls - Polished card design -->
       {#if issues.length > 0 && !emptyStateVariant}
-        <div class="filters-card p-2.5 space-y-2.5">
-          <!-- Easy issues toggle -->
+        <div class="filter-card">
+          <!-- Easy issues toggle - Featured at top -->
           <button
             type="button"
             onclick={() => handleFilterToggle(!showOnlyZeroComments)}
-            class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md transition-all {showOnlyZeroComments
-              ? 'bg-emerald-500/20 border border-emerald-500/40'
-              : 'bg-slate-700/40 border border-slate-600/30 hover:bg-slate-700/60'}"
+            class="filter-toggle {showOnlyZeroComments ? 'active' : ''}"
             aria-pressed={showOnlyZeroComments}
           >
-            <div class="flex items-center gap-1.5">
-              <div
-                class="w-4 h-4 rounded flex items-center justify-center {showOnlyZeroComments
-                  ? 'bg-emerald-500'
-                  : 'bg-slate-600'}"
-              >
-                <svg
-                  class="w-2.5 h-2.5 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="3"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+            <div class="flex items-center gap-2">
+              <div class="toggle-checkbox {showOnlyZeroComments ? 'checked' : ''}">
+                {#if showOnlyZeroComments}
+                  <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="3"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                {/if}
               </div>
-              <span
-                class="text-[10px] font-medium {showOnlyZeroComments
-                  ? 'text-emerald-300'
-                  : 'text-slate-300'}">Easy to Start</span
-              >
+              <span class="text-xs font-medium">Easy to Start</span>
             </div>
-            <span
-              class="text-[9px] font-bold px-1 py-0.5 rounded {showOnlyZeroComments
-                ? 'bg-emerald-500/30 text-emerald-300'
-                : 'bg-slate-600/50 text-slate-400'}">{zeroCommentCount}</span
+            <span class="toggle-count {showOnlyZeroComments ? 'active' : ''}"
+              >{zeroCommentCount}</span
             >
           </button>
 
-          <!-- Tag Cloud - Issue #137 -->
+          <!-- Divider -->
+          <div class="filter-divider"></div>
+
+          <!-- Tag Cloud with Show More - Issue #137 -->
           {#if aggregatedLabels.length > 0}
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between">
-                <span class="text-[10px] text-slate-300 font-medium">Labels</span>
-                {#if labelFilter}
-                  <button
-                    type="button"
-                    onclick={() => (labelFilter = null)}
-                    class="text-[9px] text-amber-400 hover:text-amber-300 font-medium"
-                  >
-                    Clear
-                  </button>
-                {/if}
+            <div class="filter-section">
+              <div class="filter-section-header">
+                <span class="filter-label">Labels</span>
+                <div class="flex items-center gap-2">
+                  {#if labelFilter}
+                    <button
+                      type="button"
+                      onclick={() => (labelFilter = null)}
+                      class="filter-action-btn text-amber-400 hover:text-amber-300"
+                    >
+                      Clear
+                    </button>
+                  {/if}
+                  {#if aggregatedLabels.length > COLLAPSED_LABEL_COUNT}
+                    <button
+                      type="button"
+                      onclick={() => (showAllLabels = !showAllLabels)}
+                      class="filter-action-btn text-teal-400 hover:text-teal-300"
+                    >
+                      {showAllLabels
+                        ? 'Show less'
+                        : `+${aggregatedLabels.length - COLLAPSED_LABEL_COUNT} more`}
+                    </button>
+                  {/if}
+                </div>
               </div>
-              <TagCloud labels={aggregatedLabels} onTagClick={handleTagClick} maxTags={12} />
+              <TagCloud
+                labels={aggregatedLabels}
+                onTagClick={handleTagClick}
+                maxTags={showAllLabels ? 30 : COLLAPSED_LABEL_COUNT}
+              />
             </div>
           {/if}
 
-          <!-- Sort - Dropdown + Direction Toggle (Issue #122) -->
-          <div class="space-y-1.5">
-            <span class="text-[10px] text-slate-300 font-medium">Sort by</span>
-            <div class="flex gap-1.5">
-              <!-- Sort Option Dropdown -->
-              <select
-                class="sort-dropdown flex-1 px-2 py-1.5 text-[10px] font-medium rounded bg-slate-800/60 border border-slate-700/40 text-white focus:outline-none focus:border-teal-500/50"
-                aria-label="Sort by"
-                onchange={(e) => handleSortOptionChange(e.currentTarget.value as SortOption)}
-              >
-                {#each Object.entries(SORT_OPTION_LABELS) as [value, label] (value)}
-                  <option {value} selected={sortBy === value}>{label}</option>
-                {/each}
-              </select>
-              <!-- Direction Toggle Button -->
-              <button
-                type="button"
-                onclick={handleSortDirectionToggle}
-                class="px-2 py-1.5 rounded bg-slate-800/60 border border-slate-700/40 text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all"
-                aria-label="Toggle sort direction: currently {sortDirection === 'asc'
-                  ? 'ascending'
-                  : 'descending'}"
-                title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
-              >
-                {#if sortDirection === 'asc'}
+          <!-- Divider -->
+          <div class="filter-divider"></div>
+
+          <!-- Sort & Export Row -->
+          <div class="filter-section">
+            <!-- Sort Row -->
+            <div class="control-row">
+              <span class="filter-label">Sort</span>
+              <div class="control-group">
+                <!-- Custom Sort Dropdown -->
+                <div class="relative flex-1">
+                  <button
+                    type="button"
+                    onclick={() => (sortDropdownOpen = !sortDropdownOpen)}
+                    onblur={() => setTimeout(() => (sortDropdownOpen = false), 150)}
+                    class="dropdown-trigger"
+                    aria-haspopup="listbox"
+                    aria-expanded={sortDropdownOpen}
+                    aria-label="Sort by: {SORT_OPTION_LABELS[sortBy]}"
+                  >
+                    <span>{SORT_OPTION_LABELS[sortBy]}</span>
+                    <svg
+                      class="w-3 h-3 text-slate-400 transition-transform {sortDropdownOpen
+                        ? 'rotate-180'
+                        : ''}"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+                  <!-- Dropdown Menu -->
+                  {#if sortDropdownOpen}
+                    <div class="dropdown-menu" role="listbox">
+                      {#each Object.entries(SORT_OPTION_LABELS) as [value, label] (value)}
+                        <button
+                          type="button"
+                          role="option"
+                          aria-selected={sortBy === value}
+                          onclick={() => {
+                            handleSortOptionChange(value as SortOption);
+                            sortDropdownOpen = false;
+                          }}
+                          class="dropdown-option {sortBy === value ? 'selected' : ''}"
+                        >
+                          {label}
+                        </button>
+                      {/each}
+                    </div>
+                  {/if}
+                </div>
+                <!-- Direction Toggle Button -->
+                <button
+                  type="button"
+                  onclick={handleSortDirectionToggle}
+                  class="icon-btn"
+                  aria-label="Toggle sort direction: currently {sortDirection === 'asc'
+                    ? 'ascending'
+                    : 'descending'}"
+                  title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
+                >
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="2"
-                      d="M5 15l7-7 7 7"
+                      d={sortDirection === 'asc' ? 'M5 15l7-7 7 7' : 'M19 9l-7 7-7-7'}
                     />
                   </svg>
-                {:else}
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                {/if}
-              </button>
+                </button>
+              </div>
+            </div>
+
+            <!-- Export Row -->
+            <div class="control-row mt-2">
+              <span class="filter-label">Export</span>
+              <div class="export-buttons">
+                <button
+                  type="button"
+                  onclick={() => exportIssues('markdown')}
+                  class="export-btn"
+                  title="Export as Markdown"
+                >
+                  MD
+                </button>
+                <button
+                  type="button"
+                  onclick={() => exportIssues('plain')}
+                  class="export-btn"
+                  title="Export as Plain Text"
+                >
+                  TXT
+                </button>
+                <button
+                  type="button"
+                  onclick={() => exportIssues('csv')}
+                  class="export-btn"
+                  title="Export as CSV"
+                >
+                  CSV
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- Export - Vertical layout with clear labels -->
-          <div class="space-y-1.5">
-            <span class="text-[10px] text-slate-300 font-medium">Export As</span>
-            <div class="flex rounded bg-slate-800/60 p-0.5 border border-slate-700/40">
-              <button
-                type="button"
-                onclick={() => exportIssues('markdown')}
-                class="flex-1 px-2 py-1.5 text-[10px] font-medium rounded text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all"
-                >Markdown</button
-              >
-              <button
-                type="button"
-                onclick={() => exportIssues('plain')}
-                class="flex-1 px-2 py-1.5 text-[10px] font-medium rounded text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all"
-                >Text</button
-              >
-              <button
-                type="button"
-                onclick={() => exportIssues('csv')}
-                class="flex-1 px-2 py-1.5 text-[10px] font-medium rounded text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all"
-                >CSV</button
-              >
-            </div>
-          </div>
-
+          <!-- Reset filters -->
           {#if showOnlyZeroComments || labelFilter || sortBy !== DEFAULT_SORT_PREFERENCES.sortBy || sortDirection !== DEFAULT_SORT_PREFERENCES.direction}
-            <button
-              type="button"
-              onclick={handleClearFilters}
-              class="text-[9px] text-amber-400 hover:text-amber-300 font-medium"
-              >Reset filters</button
-            >
+            <div class="filter-divider"></div>
+            <button type="button" onclick={handleClearFilters} class="reset-btn">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              Reset all filters
+            </button>
           {/if}
         </div>
       {/if}
@@ -956,19 +1002,22 @@
     transition: transform 0.2s ease;
   }
 
-  /* Sort dropdown styles */
-  :global(.sort-dropdown) {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 0.5rem center;
-    background-repeat: no-repeat;
-    background-size: 1.5em 1.5em;
-    padding-right: 2.5rem;
+  /* Sketch control - hand-drawn style for buttons/controls */
+  :global(.sketch-control) {
+    position: relative;
+    border-radius: 8px;
+    border: 1px solid;
   }
 
-  :global(.sort-dropdown) option {
-    background: #1e293b;
-    color: white;
+  :global(.sketch-control)::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: inherit;
+    filter: url(#sketch-light);
+    pointer-events: none;
   }
 
   /* Hover effect for issue cards */
@@ -1196,14 +1245,263 @@
     filter: drop-shadow(0 4px 12px rgba(13, 148, 136, 0.4));
   }
 
-  /* Filters card styling */
-  .filters-card {
+  /* ====== FILTER CARD COMPONENT STYLES ====== */
+
+  /* Main filter card container */
+  .filter-card {
+    background: rgba(30, 41, 59, 0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    border: 1px solid rgba(71, 85, 105, 0.4);
+    padding: 0.75rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Easy to Start toggle button */
+  .filter-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(71, 85, 105, 0.4);
+    background: rgba(51, 65, 85, 0.3);
+    color: rgb(203, 213, 225);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .filter-toggle:hover {
+    background: rgba(51, 65, 85, 0.5);
+    border-color: rgba(71, 85, 105, 0.6);
+  }
+
+  .filter-toggle.active {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.4);
+    color: rgb(134, 239, 172);
+  }
+
+  /* Checkbox inside toggle */
+  .toggle-checkbox {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 4px;
+    border: 2px solid rgba(100, 116, 139, 0.5);
     background: rgba(30, 41, 59, 0.5);
-    backdrop-filter: blur(8px);
-    border-radius: 10px;
-    border: 1px solid rgba(71, 85, 105, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.15s ease;
+  }
+
+  .toggle-checkbox.checked {
+    background: rgb(34, 197, 94);
+    border-color: rgb(34, 197, 94);
+  }
+
+  /* Count badge in toggle */
+  .toggle-count {
+    font-size: 0.625rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    background: rgba(51, 65, 85, 0.6);
+    color: rgb(148, 163, 184);
+  }
+
+  .toggle-count.active {
+    background: rgba(34, 197, 94, 0.25);
+    color: rgb(134, 239, 172);
+  }
+
+  /* Divider between sections */
+  .filter-divider {
+    height: 1px;
+    background: rgba(71, 85, 105, 0.3);
+    margin: 0.625rem 0;
+  }
+
+  /* Filter section container */
+  .filter-section {
+    padding: 0.25rem 0;
+  }
+
+  /* Section header with label and actions */
+  .filter-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Label text */
+  .filter-label {
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: rgb(148, 163, 184);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Action buttons (Clear, +X more) */
+  .filter-action-btn {
+    font-size: 0.625rem;
+    font-weight: 500;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+
+  /* Control row (Sort, Export) */
+  .control-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Control group (dropdown + buttons) */
+  .control-group {
+    flex: 1;
+    display: flex;
+    gap: 0.375rem;
+  }
+
+  /* Dropdown trigger button */
+  .dropdown-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.625rem;
+    font-weight: 500;
+    color: rgb(226, 232, 240);
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(71, 85, 105, 0.5);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .dropdown-trigger:hover {
+    background: rgba(51, 65, 85, 0.6);
+    border-color: rgba(100, 116, 139, 0.5);
+  }
+
+  /* Dropdown menu */
+  .dropdown-menu {
+    position: absolute;
+    z-index: 50;
+    margin-top: 0.25rem;
+    width: 100%;
+    background: rgb(30, 41, 59);
+    border: 1px solid rgba(71, 85, 105, 0.6);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     overflow: hidden;
   }
+
+  /* Dropdown option */
+  .dropdown-option {
+    width: 100%;
+    padding: 0.5rem 0.625rem;
+    font-size: 0.625rem;
+    font-weight: 500;
+    text-align: left;
+    color: rgb(203, 213, 225);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.1s ease;
+  }
+
+  .dropdown-option:hover {
+    background: rgba(51, 65, 85, 0.8);
+    color: white;
+  }
+
+  .dropdown-option.selected {
+    background: rgba(20, 184, 166, 0.3);
+    color: rgb(94, 234, 212);
+  }
+
+  /* Icon button (sort direction) */
+  .icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(71, 85, 105, 0.5);
+    border-radius: 6px;
+    color: rgb(148, 163, 184);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .icon-btn:hover {
+    background: rgba(51, 65, 85, 0.6);
+    color: white;
+    border-color: rgba(100, 116, 139, 0.5);
+  }
+
+  /* Export buttons container */
+  .export-buttons {
+    flex: 1;
+    display: flex;
+    gap: 0.25rem;
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(71, 85, 105, 0.4);
+    border-radius: 6px;
+    padding: 0.125rem;
+  }
+
+  /* Export button */
+  .export-btn {
+    flex: 1;
+    padding: 0.25rem 0.375rem;
+    font-size: 0.5625rem;
+    font-weight: 600;
+    color: rgb(148, 163, 184);
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .export-btn:hover {
+    background: rgba(51, 65, 85, 0.6);
+    color: white;
+  }
+
+  /* Reset button */
+  .reset-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.625rem;
+    font-weight: 500;
+    color: rgb(251, 191, 36);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.15s ease;
+  }
+
+  .reset-btn:hover {
+    color: rgb(252, 211, 77);
+  }
+
+  /* ====== END FILTER CARD STYLES ====== */
 
   @media (prefers-reduced-motion: no-preference) {
     .logo-mark svg circle:nth-child(3),
