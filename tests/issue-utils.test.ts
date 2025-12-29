@@ -13,7 +13,8 @@ import {
   filterByCommentLevel,
   sortByComments,
   countZeroCommentIssues,
-  hasZeroCommentIssues
+  hasZeroCommentIssues,
+  aggregateLabelFrequencies
 } from '../src/lib/issue-utils';
 
 /**
@@ -431,6 +432,120 @@ describe('hasZeroCommentIssues', () => {
 
     it('should return false for undefined input', () => {
       expect(hasZeroCommentIssues(undefined as unknown as GitHubIssue[])).toBe(false);
+    });
+  });
+});
+
+// ============================================================================
+// aggregateLabelFrequencies Tests (Issue #137)
+// ============================================================================
+
+/**
+ * Helper function to create a mock issue with labels
+ */
+function createMockIssueWithLabels(
+  labels: Array<{ name: string; color: string }>,
+  number: number = 1
+): GitHubIssue {
+  return {
+    number,
+    title: `Test Issue #${number}`,
+    url: `https://github.com/test/repo/issues/${number}`,
+    body: `This is the body of test issue #${number}`,
+    createdAt: '2025-11-29T00:00:00Z',
+    updatedAt: '2025-11-29T00:00:00Z',
+    comments: { totalCount: 0 },
+    labels: { nodes: labels.map((l) => ({ ...l, description: null })) },
+    timelineItems: { nodes: [] }
+  };
+}
+
+describe('aggregateLabelFrequencies', () => {
+  describe('aggregates correctly', () => {
+    it('should return empty array for empty input', () => {
+      const result = aggregateLabelFrequencies([]);
+      expect(result).toEqual([]);
+    });
+
+    it('should count single label from single issue', () => {
+      const issues = [createMockIssueWithLabels([{ name: 'bug', color: 'd73a4a' }])];
+      const result = aggregateLabelFrequencies(issues);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({ name: 'bug', count: 1, color: 'd73a4a' });
+    });
+
+    it('should count same label across multiple issues', () => {
+      const issues = [
+        createMockIssueWithLabels([{ name: 'bug', color: 'd73a4a' }], 1),
+        createMockIssueWithLabels([{ name: 'bug', color: 'd73a4a' }], 2),
+        createMockIssueWithLabels([{ name: 'bug', color: 'd73a4a' }], 3)
+      ];
+      const result = aggregateLabelFrequencies(issues);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({ name: 'bug', count: 3, color: 'd73a4a' });
+    });
+
+    it('should count multiple different labels', () => {
+      const issues = [
+        createMockIssueWithLabels(
+          [
+            { name: 'bug', color: 'd73a4a' },
+            { name: 'feature', color: '0e8a16' }
+          ],
+          1
+        ),
+        createMockIssueWithLabels([{ name: 'bug', color: 'd73a4a' }], 2)
+      ];
+      const result = aggregateLabelFrequencies(issues);
+      expect(result).toHaveLength(2);
+      // Should be sorted by count descending
+      expect(result[0]).toEqual({ name: 'bug', count: 2, color: 'd73a4a' });
+      expect(result[1]).toEqual({ name: 'feature', count: 1, color: '0e8a16' });
+    });
+
+    it('should sort labels by frequency descending', () => {
+      const issues = [
+        createMockIssueWithLabels([{ name: 'rare', color: 'aaaaaa' }], 1),
+        createMockIssueWithLabels([{ name: 'common', color: 'bbbbbb' }], 2),
+        createMockIssueWithLabels([{ name: 'common', color: 'bbbbbb' }], 3),
+        createMockIssueWithLabels([{ name: 'common', color: 'bbbbbb' }], 4),
+        createMockIssueWithLabels([{ name: 'medium', color: 'cccccc' }], 5),
+        createMockIssueWithLabels([{ name: 'medium', color: 'cccccc' }], 6)
+      ];
+      const result = aggregateLabelFrequencies(issues);
+      expect(result.map((l) => l.name)).toEqual(['common', 'medium', 'rare']);
+      expect(result.map((l) => l.count)).toEqual([3, 2, 1]);
+    });
+  });
+
+  describe('handles edge cases', () => {
+    it('should return empty array for null input', () => {
+      const result = aggregateLabelFrequencies(null as unknown as GitHubIssue[]);
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array for undefined input', () => {
+      const result = aggregateLabelFrequencies(undefined as unknown as GitHubIssue[]);
+      expect(result).toEqual([]);
+    });
+
+    it('should handle issues with no labels', () => {
+      const issues = [createMockIssueWithLabels([], 1), createMockIssueWithLabels([], 2)];
+      const result = aggregateLabelFrequencies(issues);
+      expect(result).toEqual([]);
+    });
+
+    it('should handle issues with null labels property', () => {
+      const issue = createMockIssueWithLabels([], 1);
+      (issue as unknown as { labels: null }).labels = null;
+      const result = aggregateLabelFrequencies([issue]);
+      expect(result).toEqual([]);
+    });
+
+    it('should use default color for labels without color', () => {
+      const issue = createMockIssueWithLabels([{ name: 'test', color: '' }], 1);
+      const result = aggregateLabelFrequencies([issue]);
+      expect(result[0].color).toBe('666666');
     });
   });
 });

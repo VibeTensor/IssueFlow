@@ -8,6 +8,7 @@
  * Issue #121 - Added FilterBuilder and FilterHelpTooltip components
  * Issue #178 - Added ScrollToTop component
  * Issue #174 - Added Toast component
+ * Issue #137 - Added TagCloud component
  */
 
 export { default as SVGFilters } from './SVGFilters.svelte';
@@ -21,3 +22,4 @@ export { default as FilterBuilder } from './FilterBuilder.svelte';
 export { default as FilterHelpTooltip } from './FilterHelpTooltip.svelte';
 export { default as ScrollToTop } from './ScrollToTop.svelte';
 export { default as Toast } from './Toast.svelte';
+export { default as TagCloud } from './TagCloud.svelte';
