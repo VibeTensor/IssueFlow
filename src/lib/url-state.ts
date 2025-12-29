@@ -7,7 +7,7 @@
  */
 
 import type { SortOption, SortDirection } from './types/sorting';
-import { DEFAULT_SORT_PREFERENCES } from './types/sorting';
+import { DEFAULT_SORT_PREFERENCES, isValidSortOption, isValidSortDirection } from './types/sorting';
 
 /**
  * Search state that can be serialized to URL
@@ -196,14 +196,4 @@ export function hasUrlState(): boolean {
 
   const params = new URLSearchParams(window.location.search);
   return params.has(URL_PARAMS.repo);
-}
-
-// Type guards for validation
-function isValidSortOption(value: string): boolean {
-  const validOptions = ['stars', 'updated', 'created', 'comments', 'relevance'];
-  return validOptions.includes(value);
-}
-
-function isValidSortDirection(value: string): boolean {
-  return value === 'asc' || value === 'desc';
 }

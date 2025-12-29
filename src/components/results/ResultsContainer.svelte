@@ -374,6 +374,8 @@
     const success = await copyShareableUrl(currentState);
     if (success) {
       showCopiedToast();
+    } else {
+      console.warn('Failed to copy shareable URL to clipboard');
     }
   }
 
