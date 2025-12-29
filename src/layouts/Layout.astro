@@ -1,5 +1,5 @@
 ---
-import { Footer, SVGFilters, ScrollToTop, Toast } from '../components/shared';
+import { Footer, SVGFilters, ScrollToTop, Toast, ThemeToggle } from '../components/shared';
 
 interface Props {
   title: string;
@@ -62,6 +62,31 @@ const ogImage = `${siteUrl}/og-image.png`;
     <meta name="theme-color" content="#0d9488" />
     <meta name="msapplication-TileColor" content="#0d9488" />
 
+    <!-- Issue #180 - Theme Detection Script (blocking to prevent FOUC) -->
+    <script is:inline>
+      (function () {
+        const STORAGE_KEY = 'issueflow-theme';
+        const stored = localStorage.getItem(STORAGE_KEY);
+        let theme = 'light';
+
+        if (stored === 'dark') {
+          theme = 'dark';
+        } else if (stored === 'light') {
+          theme = 'light';
+        } else {
+          // System preference fallback
+          if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            theme = 'dark';
+          }
+        }
+
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
+
     <!-- Robots -->
     <meta name="robots" content="index, follow" />
     <meta name="googlebot" content="index, follow" />
@@ -70,6 +95,7 @@ const ogImage = `${siteUrl}/og-image.png`;
     <meta name="application-name" content="IssueFlow" />
     <meta name="apple-mobile-web-app-title" content="IssueFlow" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
     <!-- Schema.org for Google -->
@@ -99,12 +125,36 @@ const ogImage = `${siteUrl}/og-image.png`;
         }
       }
     </script>
+
+    <!-- Issue #180 - Global theme transition styles -->
+    <style is:global>
+      /* Smooth theme transitions */
+      html {
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
+
+      /* Dark mode base styles */
+      html.dark {
+        background-color: #0f172a;
+        color: #e2e8f0;
+      }
+
+      /* Respect reduced motion preference */
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          transition: none;
+        }
+      }
+    </style>
   </head>
   <body>
     <SVGFilters />
     <slot />
     <Toast client:idle />
     <ScrollToTop client:idle />
+    <ThemeToggle client:idle />
     <Footer client:visible />
   </body>
 </html>

@@ -1,7 +1,13 @@
 import { defineConfig, presetUno, presetTypography } from 'unocss';
 
 export default defineConfig({
-  presets: [presetUno(), presetTypography()],
+  // Issue #180 - Enable class-based dark mode
+  presets: [
+    presetUno({
+      dark: 'class'
+    }),
+    presetTypography()
+  ],
   theme: {
     colors: {
       primary: '#2563eb',
