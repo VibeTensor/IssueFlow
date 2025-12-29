@@ -10,9 +10,10 @@
 <script lang="ts">
   import { themeState, toggleTheme, initTheme } from '../../lib/theme-store.svelte';
 
-  // Initialize theme on component mount
+  // Initialize theme on component mount with cleanup
   $effect(() => {
-    initTheme();
+    const cleanup = initTheme();
+    return cleanup;
   });
 
   // Derive aria-label based on current resolved theme

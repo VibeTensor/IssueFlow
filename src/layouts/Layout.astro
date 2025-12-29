@@ -128,6 +128,35 @@ const ogImage = `${siteUrl}/og-image.png`;
 
     <!-- Issue #180 - Global theme transition styles -->
     <style is:global>
+      /* CSS Custom Properties for theming */
+      :root {
+        --color-bg-primary: #ffffff;
+        --color-bg-secondary: #f8fafc;
+        --color-bg-tertiary: #f1f5f9;
+        --color-bg-card: #ffffff;
+        --color-text-primary: #1e293b;
+        --color-text-secondary: #64748b;
+        --color-text-muted: #94a3b8;
+        --color-border: #e2e8f0;
+        --color-border-hover: #cbd5e1;
+        --color-input-bg: #ffffff;
+        --color-shadow: rgba(0, 0, 0, 0.1);
+      }
+
+      html.dark {
+        --color-bg-primary: #0f172a;
+        --color-bg-secondary: #1e293b;
+        --color-bg-tertiary: #334155;
+        --color-bg-card: #1e293b;
+        --color-text-primary: #f1f5f9;
+        --color-text-secondary: #cbd5e1;
+        --color-text-muted: #94a3b8;
+        --color-border: #334155;
+        --color-border-hover: #475569;
+        --color-input-bg: #1e293b;
+        --color-shadow: rgba(0, 0, 0, 0.3);
+      }
+
       /* Smooth theme transitions */
       html {
         transition:
@@ -135,10 +164,86 @@ const ogImage = `${siteUrl}/og-image.png`;
           color 0.3s ease;
       }
 
-      /* Dark mode base styles */
-      html.dark {
-        background-color: #0f172a;
-        color: #e2e8f0;
+      /* Apply theme colors */
+      html {
+        background-color: var(--color-bg-primary);
+        color: var(--color-text-primary);
+      }
+
+      body {
+        background-color: var(--color-bg-primary);
+        color: var(--color-text-primary);
+      }
+
+      /* Dark mode for common elements */
+      html.dark input,
+      html.dark textarea,
+      html.dark select {
+        background-color: var(--color-input-bg);
+        color: var(--color-text-primary);
+        border-color: var(--color-border);
+      }
+
+      html.dark input::placeholder,
+      html.dark textarea::placeholder {
+        color: var(--color-text-muted);
+      }
+
+      html.dark button:not(.theme-toggle-btn):not([class*='bg-']) {
+        background-color: var(--color-bg-secondary);
+        color: var(--color-text-primary);
+        border-color: var(--color-border);
+      }
+
+      /* Cards and containers in dark mode */
+      html.dark [class*='bg-white'],
+      html.dark [class*='bg-slate-50'],
+      html.dark [class*='bg-gray-50'] {
+        background-color: var(--color-bg-card) !important;
+      }
+
+      html.dark [class*='bg-slate-100'],
+      html.dark [class*='bg-gray-100'] {
+        background-color: var(--color-bg-tertiary) !important;
+      }
+
+      /* Text colors in dark mode */
+      html.dark [class*='text-slate-900'],
+      html.dark [class*='text-gray-900'],
+      html.dark [class*='text-slate-800'],
+      html.dark [class*='text-gray-800'],
+      html.dark [class*='text-slate-700'],
+      html.dark [class*='text-gray-700'] {
+        color: var(--color-text-primary) !important;
+      }
+
+      html.dark [class*='text-slate-600'],
+      html.dark [class*='text-gray-600'],
+      html.dark [class*='text-slate-500'],
+      html.dark [class*='text-gray-500'] {
+        color: var(--color-text-secondary) !important;
+      }
+
+      /* Borders in dark mode */
+      html.dark [class*='border-slate-'],
+      html.dark [class*='border-gray-'] {
+        border-color: var(--color-border) !important;
+      }
+
+      /* Shadows in dark mode */
+      html.dark [class*='shadow'] {
+        --tw-shadow-color: var(--color-shadow);
+      }
+
+      /* Links */
+      html.dark a:not([class*='text-']) {
+        color: #60a5fa;
+      }
+
+      /* Hover states */
+      html.dark [class*='hover:bg-slate-100']:hover,
+      html.dark [class*='hover:bg-gray-100']:hover {
+        background-color: var(--color-bg-tertiary) !important;
       }
 
       /* Respect reduced motion preference */

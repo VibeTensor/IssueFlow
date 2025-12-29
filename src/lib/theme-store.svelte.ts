@@ -109,10 +109,11 @@ export function toggleTheme(): void {
 
 /**
  * Initialize theme from localStorage or system preference
- * Should be called once when the app mounts
+ * Should be called once when the app mounts.
+ * Returns a cleanup function to remove event listeners.
  */
-export function initTheme(): void {
-  if (typeof localStorage === 'undefined') return;
+export function initTheme(): () => void {
+  if (typeof localStorage === 'undefined') return () => {};
 
   const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
 
@@ -126,12 +127,20 @@ export function initTheme(): void {
   applyTheme(themeState.resolved);
 
   // Listen for system preference changes
+  let cleanup: () => void = () => {};
+
   if (typeof window !== 'undefined') {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e: MediaQueryListEvent) => {
       if (themeState.current === 'system') {
         themeState.resolved = e.matches ? 'dark' : 'light';
         applyTheme(themeState.resolved);
       }
-    });
+    };
+
+    mediaQuery.addEventListener('change', handler);
+    cleanup = () => mediaQuery.removeEventListener('change', handler);
   }
+
+  return cleanup;
 }
