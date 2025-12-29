@@ -63,7 +63,9 @@ export default tseslint.config(
       'coverage/',
       '*.min.js',
       // Svelte 5 runes in .svelte.ts files not yet supported by ESLint parser
-      '**/*.svelte.ts'
+      '**/*.svelte.ts',
+      // Layout.astro has is:inline script that ESLint can't parse
+      'src/layouts/Layout.astro'
     ]
   },
 
