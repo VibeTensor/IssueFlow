@@ -4,6 +4,7 @@
   Issue #122 - Smart search result sorting with relevance score
   Issue #163 - Updated results header to show "Found X available issues"
   Issue #172 - Added loading skeleton cards during search
+  Issue #183 - Added fade-in animation with staggered delay for issue cards
 
   Responsibilities:
   - State management (issues, loading, error, filters, sorting)
@@ -17,6 +18,7 @@
 
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { fly } from 'svelte/transition';
   import { GitHubAPI, parseRepoUrl, type GitHubIssue } from '../../lib/github-graphql';
   import {
     countZeroCommentIssues,
@@ -944,8 +946,10 @@
       </div>
 
       <div class="space-y-2">
-        {#each displayedIssues as issue (issue.number)}
-          <IssueCard {issue} {copiedIssueNumber} onCopy={handleCopyIssue} />
+        {#each displayedIssues as issue, i (issue.number)}
+          <div in:fly={{ y: 20, delay: Math.min(i * 50, 500), duration: 300 }}>
+            <IssueCard {issue} {copiedIssueNumber} onCopy={handleCopyIssue} />
+          </div>
         {/each}
       </div>
 
@@ -1783,6 +1787,16 @@
 
   /* Accessibility: Respect user's motion preferences */
   @media (prefers-reduced-motion: reduce) {
+    /* Global override for Svelte inline transitions (Issue #183) */
+    :global(*),
+    :global(*::before),
+    :global(*::after) {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      animation-delay: 0.01ms !important;
+    }
+
     .logo-mark svg circle,
     :global(.easy-start-badge),
     :global(.zero-comment-highlight),

@@ -27,6 +27,39 @@ reviews:
     - '!**/dist/**'
     - '!**/node_modules/**'
     - '!**/.astro/**'
+  path_instructions:
+    - path: '**/*'
+      instructions: |
+        ## Project Context
+        IssueFlow is a web application built with Astro 5.x, Svelte 5, and UnoCSS that helps developers find unassigned GitHub issues without pull requests.
+
+        ## Review Focus
+        - TypeScript type safety
+        - Svelte component best practices
+        - Accessibility (a11y) compliance
+        - Mobile responsiveness
+        - Performance optimizations
+        - Security considerations (especially for GitHub API usage)
+        - Code clarity and maintainability
+
+        ## Coding Standards
+        - Use TypeScript for type safety
+        - Follow functional programming principles where applicable
+        - Keep components small and focused
+        - Write self-documenting code with clear variable names
+        - Add comments for complex logic only
+        - Ensure mobile-first responsive design
+        - Test all changes on both desktop and mobile
+
+        ## What to Flag
+        - Missing or incorrect TypeScript types
+        - Accessibility issues (missing alt text, ARIA labels, etc.)
+        - Performance issues (unnecessary re-renders, large bundles)
+        - Security vulnerabilities (XSS, API key exposure)
+        - Breaking changes without documentation
+        - Code duplication
+        - Missing error handling
+        - Hard-coded values that should be configurable
 
 chat:
   auto_reply: true
@@ -35,35 +68,3 @@ knowledge_base:
   learnings:
     scope: global
   opt_out: false
-
-instructions: |
-  ## Project Context
-  IssueFlow is a web application built with Astro 5.x, Svelte 5, and UnoCSS that helps developers find unassigned GitHub issues without pull requests.
-
-  ## Review Focus
-  - TypeScript type safety
-  - Svelte component best practices
-  - Accessibility (a11y) compliance
-  - Mobile responsiveness
-  - Performance optimizations
-  - Security considerations (especially for GitHub API usage)
-  - Code clarity and maintainability
-
-  ## Coding Standards
-  - Use TypeScript for type safety
-  - Follow functional programming principles where applicable
-  - Keep components small and focused
-  - Write self-documenting code with clear variable names
-  - Add comments for complex logic only
-  - Ensure mobile-first responsive design
-  - Test all changes on both desktop and mobile
-
-  ## What to Flag
-  - Missing or incorrect TypeScript types
-  - Accessibility issues (missing alt text, ARIA labels, etc.)
-  - Performance issues (unnecessary re-renders, large bundles)
-  - Security vulnerabilities (XSS, API key exposure)
-  - Breaking changes without documentation
-  - Code duplication
-  - Missing error handling
-  - Hard-coded values that should be configurable
