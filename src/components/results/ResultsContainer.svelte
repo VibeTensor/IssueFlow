@@ -22,14 +22,15 @@
     countZeroCommentIssues,
     isZeroComment,
     sortIssues,
-    getDefaultDirection
+    getDefaultDirection,
+    aggregateLabelFrequencies
   } from '../../lib/issue-utils';
   import type { SortOption, SortDirection } from '../../lib/types/sorting';
   import { SORT_OPTION_LABELS, DEFAULT_SORT_PREFERENCES } from '../../lib/types/sorting';
   import { getSortPreferences, setSortPreferences } from '../../lib/sort-preferences';
   import { showCopiedToast } from '../../lib/toast';
   import GitHubAuth from '../GitHubAuth.svelte';
-  import { SVGFilters, EmptyState, LoadingProgress, CancelConfirmModal } from '../shared';
+  import { SVGFilters, EmptyState, LoadingProgress, CancelConfirmModal, TagCloud } from '../shared';
   import {
     detectEmptyStateVariant,
     isRateLimitError,
@@ -70,18 +71,26 @@
 
   // Filter state
   let showOnlyZeroComments = $state(false);
+  let labelFilter = $state<string | null>(null);
 
   // Sort state (Issue #122)
   let sortBy = $state<SortOption>(DEFAULT_SORT_PREFERENCES.sortBy);
   let sortDirection = $state<SortDirection>(DEFAULT_SORT_PREFERENCES.direction);
 
-  // Derived: filtered and sorted issues (Issue #122)
+  // Derived: filtered and sorted issues (Issue #122, #137)
   let displayedIssues = $derived.by(() => {
     let result = issues;
 
     // Apply zero-comment filter
     if (showOnlyZeroComments) {
       result = result.filter(isZeroComment);
+    }
+
+    // Apply label filter (Issue #137)
+    if (labelFilter) {
+      result = result.filter((issue) =>
+        issue.labels?.nodes?.some((label) => label.name === labelFilter)
+      );
     }
 
     // Apply sorting (Issue #122)
@@ -92,6 +101,9 @@
 
   // Derived: count of zero-comment issues
   let zeroCommentCount = $derived(countZeroCommentIssues(issues));
+
+  // Derived: aggregated label frequencies for tag cloud (Issue #137)
+  let aggregatedLabels = $derived(aggregateLabelFrequencies(displayedIssues));
 
   // Derived: detect which empty state variant to show (if any)
   let emptyStateVariant = $derived(
@@ -241,6 +253,16 @@
     showOnlyZeroComments = enabled;
   }
 
+  // Handle tag cloud label click (Issue #137)
+  function handleTagClick(labelName: string) {
+    // Toggle filter - if already filtering by this label, clear it
+    if (labelFilter === labelName) {
+      labelFilter = null;
+    } else {
+      labelFilter = labelName;
+    }
+  }
+
   // Handle sort option change (Issue #122)
   function handleSortOptionChange(option: SortOption) {
     sortBy = option;
@@ -260,6 +282,7 @@
   // Handle clear filters
   function handleClearFilters() {
     showOnlyZeroComments = false;
+    labelFilter = null;
     sortBy = DEFAULT_SORT_PREFERENCES.sortBy;
     sortDirection = DEFAULT_SORT_PREFERENCES.direction;
     setSortPreferences(DEFAULT_SORT_PREFERENCES);
@@ -583,6 +606,25 @@
             >
           </button>
 
+          <!-- Tag Cloud - Issue #137 -->
+          {#if aggregatedLabels.length > 0}
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] text-slate-300 font-medium">Labels</span>
+                {#if labelFilter}
+                  <button
+                    type="button"
+                    onclick={() => (labelFilter = null)}
+                    class="text-[9px] text-amber-400 hover:text-amber-300 font-medium"
+                  >
+                    Clear
+                  </button>
+                {/if}
+              </div>
+              <TagCloud labels={aggregatedLabels} onTagClick={handleTagClick} maxTags={12} />
+            </div>
+          {/if}
+
           <!-- Sort - Dropdown + Direction Toggle (Issue #122) -->
           <div class="space-y-1.5">
             <span class="text-[10px] text-slate-300 font-medium">Sort by</span>
@@ -655,7 +697,7 @@
             </div>
           </div>
 
-          {#if showOnlyZeroComments || sortBy !== DEFAULT_SORT_PREFERENCES.sortBy || sortDirection !== DEFAULT_SORT_PREFERENCES.direction}
+          {#if showOnlyZeroComments || labelFilter || sortBy !== DEFAULT_SORT_PREFERENCES.sortBy || sortDirection !== DEFAULT_SORT_PREFERENCES.direction}
             <button
               type="button"
               onclick={handleClearFilters}
@@ -737,9 +779,9 @@
       <div aria-live="polite" aria-atomic="true" class="sr-only" role="status">
         Found {displayedIssues.length} available {displayedIssues.length === 1
           ? 'issue'
-          : 'issues'}{showOnlyZeroComments ? ', filtered to easy issues' : ''}, sorted by {SORT_OPTION_LABELS[
-          sortBy
-        ]}
+          : 'issues'}{showOnlyZeroComments ? ', filtered to easy issues' : ''}{labelFilter
+          ? `, filtered by label: ${labelFilter}`
+          : ''}, sorted by {SORT_OPTION_LABELS[sortBy]}
         {sortDirection === 'asc' ? 'ascending' : 'descending'}
       </div>
 

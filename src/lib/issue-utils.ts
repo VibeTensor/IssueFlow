@@ -371,3 +371,57 @@ export function getBodyPreview(issue: GitHubIssue, maxLength: number = 200): str
 export function hasBody(issue: GitHubIssue): boolean {
   return Boolean(issue?.body?.trim());
 }
+
+// ============================================================================
+// Issue #137: Tag Cloud Label Aggregation
+// ============================================================================
+
+/**
+ * Represents a label with its frequency count for the tag cloud
+ */
+export interface LabelFrequency {
+  /** Label name */
+  name: string;
+  /** Number of issues with this label */
+  count: number;
+  /** Label color (hex without #) */
+  color: string;
+}
+
+/**
+ * Aggregate labels across all issues and calculate frequency
+ * Returns labels sorted by frequency (most common first)
+ *
+ * @param issues - Array of GitHub issues
+ * @returns Array of labels with frequency counts, sorted by count descending
+ */
+export function aggregateLabelFrequencies(issues: GitHubIssue[]): LabelFrequency[] {
+  if (!issues || !Array.isArray(issues)) {
+    return [];
+  }
+
+  const labelMap = new Map<string, { count: number; color: string }>();
+
+  for (const issue of issues) {
+    if (!issue?.labels?.nodes) {
+      continue;
+    }
+
+    for (const label of issue.labels.nodes) {
+      if (!label?.name) {
+        continue;
+      }
+
+      const existing = labelMap.get(label.name);
+      if (existing) {
+        existing.count++;
+      } else {
+        labelMap.set(label.name, { count: 1, color: label.color || '666666' });
+      }
+    }
+  }
+
+  return Array.from(labelMap.entries())
+    .map(([name, data]) => ({ name, count: data.count, color: data.color }))
+    .sort((a, b) => b.count - a.count);
+}
