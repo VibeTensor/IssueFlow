@@ -1701,11 +1701,11 @@ const ogImage = `${siteUrl}/og-image.png`;
 
       /* Solid backdrop - hide everything behind */
       html:not(.dark) .modal-backdrop {
-        background: rgba(71, 85, 105, 0.85) !important;
-        backdrop-filter: blur(8px) !important;
+        background: rgba(71, 85, 105, 0.9) !important;
+        backdrop-filter: blur(12px) !important;
       }
 
-      /* Modal container - SOLID white background, no transparency */
+      /* Modal container - SOLID white, all children inherit */
       html:not(.dark) .cancel-modal {
         background: #ffffff !important;
         backdrop-filter: none !important;
@@ -1714,80 +1714,83 @@ const ogImage = `${siteUrl}/og-image.png`;
           0 0 0 1px rgba(0, 0, 0, 0.08) !important;
       }
 
+      /* CRITICAL: All elements inside modal get solid/transparent backgrounds */
+      html:not(.dark) .cancel-modal * {
+        background-color: transparent !important;
+      }
+
       html:not(.dark) .cancel-modal::before {
         border-color: rgba(203, 213, 225, 0.8) !important;
         background: transparent !important;
       }
 
-      /* Warning icon - solid amber background */
-      html:not(.dark) .modal-icon {
+      /* Warning icon - solid amber background (override the * rule) */
+      html:not(.dark) .cancel-modal .modal-icon {
         background: #fef3c7 !important;
         color: #d97706 !important;
       }
 
-      /* Title - dark text */
-      html:not(.dark) .modal-title {
+      /* Title - dark text on white */
+      html:not(.dark) .cancel-modal .modal-title {
         color: #0f172a !important;
-        background: transparent !important;
       }
 
-      /* Issues info box - SOLID background */
-      html:not(.dark) .issues-info {
+      /* Issues info box - SOLID light gray background */
+      html:not(.dark) .cancel-modal .issues-info {
         background: #f1f5f9 !important;
         color: #475569 !important;
         border: 1px solid #cbd5e1 !important;
       }
 
-      html:not(.dark) .issues-info .info-icon {
+      html:not(.dark) .cancel-modal .issues-info .info-icon {
         color: #14b8a6 !important;
       }
 
-      html:not(.dark) .issues-info strong {
+      html:not(.dark) .cancel-modal .issues-info strong {
         color: #0f172a !important;
       }
 
-      /* Description text - solid background inherited from modal */
-      html:not(.dark) .modal-description {
+      /* Description text */
+      html:not(.dark) .cancel-modal .modal-description {
         color: #64748b !important;
-        background: transparent !important;
       }
 
-      /* Modal actions container - ensure no visual artifacts */
-      html:not(.dark) .modal-actions {
-        background: transparent !important;
-      }
-
-      /* Continue Loading button - SOLID teal */
-      html:not(.dark) .btn-continue {
+      /* Continue Loading button - SOLID teal gradient */
+      html:not(.dark) .cancel-modal .btn-continue {
         background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%) !important;
         color: #ffffff !important;
         border: none !important;
         box-shadow: 0 2px 8px rgba(20, 184, 166, 0.35) !important;
       }
 
-      html:not(.dark) .btn-continue:hover {
+      html:not(.dark) .cancel-modal .btn-continue:hover {
         background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%) !important;
         color: #ffffff !important;
         box-shadow: 0 4px 12px rgba(20, 184, 166, 0.45) !important;
       }
 
-      /* Yes, Show Results button - SOLID amber background */
-      html:not(.dark) .btn-cancel {
+      /* Yes, Show Results button - SOLID amber */
+      html:not(.dark) .cancel-modal .btn-cancel {
         color: #92400e !important;
         background: #fef3c7 !important;
         border: 1px solid #fcd34d !important;
       }
 
-      html:not(.dark) .btn-cancel:hover {
+      html:not(.dark) .cancel-modal .btn-cancel:hover {
         background: #fde68a !important;
         border-color: #fbbf24 !important;
         color: #78350f !important;
       }
 
-      /* Button icons - full opacity */
-      html:not(.dark) .btn-continue .btn-icon,
-      html:not(.dark) .btn-cancel .btn-icon {
+      /* Button icons */
+      html:not(.dark) .cancel-modal .btn-icon {
         opacity: 1 !important;
+        background: transparent !important;
+      }
+
+      /* SVG elements inside buttons */
+      html:not(.dark) .cancel-modal svg {
+        background: transparent !important;
       }
 
       /* ========================================
