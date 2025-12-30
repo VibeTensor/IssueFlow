@@ -50,6 +50,7 @@
   } from '../../lib/loading-progress-utils';
   import { addToHistory, setLastSearchedRepo } from '../../lib/search-history';
   import { SearchForm, HelpPopup, IssueCard, IssueCardSkeleton } from './index';
+  import { infiniteScroll } from '../../lib/infinite-scroll';
 
   // Core state
   let repoUrl = $state('');
@@ -90,6 +91,14 @@
   // URL state tracking (Issue #140)
   let urlStateInitialized = $state(false);
   let isUpdatingFromUrl = $state(false);
+
+  // Infinite scroll state (Issue #131)
+  let hasMorePages = $state(false);
+  let nextCursor = $state<string | null>(null);
+  let isLoadingMore = $state(false);
+  let totalIssueCount = $state(0);
+  let loadMoreError = $state(false);
+  let loadMoreLastCall = $state(0); // Debounce protection
 
   // Derived: filtered and sorted issues (Issue #122, #137)
   let displayedIssues = $derived.by(() => {
@@ -238,6 +247,7 @@
   }
 
   // Handle search (Issue #23 - with progress tracking and cancel support)
+  // Issue #131 - Modified to use fetchIssuesPage for infinite scroll
   async function handleSearch() {
     // Abort any previous search
     abortController?.abort();
@@ -248,6 +258,13 @@
     loading = true;
     hasSearched = true;
     showCancelModal = false;
+
+    // Reset infinite scroll state (Issue #131)
+    hasMorePages = false;
+    nextCursor = null;
+    isLoadingMore = false;
+    totalIssueCount = 0;
+    loadMoreError = false;
 
     // Create new AbortController
     abortController = new AbortController();
@@ -276,21 +293,30 @@
       isAuthenticated: !!githubToken
     });
 
-    // Progress callback
-    const onProgress = (state: ProgressState) => {
-      progressState = state;
-    };
-
     try {
       const api = new GitHubAPI(githubToken || undefined);
-      const result = await api.fetchAvailableIssues(
+
+      // Issue #131: Use fetchIssuesPage for initial load (enables infinite scroll)
+      const result = await api.fetchIssuesPage(
         parsed.owner,
         parsed.repo,
-        onProgress,
+        null, // No cursor for first page
         abortController.signal
       );
+
       issues = result.issues;
       rateLimit = result.rateLimit;
+      hasMorePages = result.pageInfo.hasNextPage;
+      nextCursor = result.pageInfo.endCursor;
+      totalIssueCount = result.totalCount;
+
+      // Update progress state for first page
+      progressState = {
+        ...progressState!,
+        currentPage: 1,
+        issuesFound: result.issues.length,
+        status: 'complete'
+      };
 
       // Add to search history (Issue #62)
       addToHistory(parsed.owner, parsed.repo, repoUrl, result.issues.length);
@@ -311,6 +337,55 @@
       searchStartTime = null;
       // Keep progressState for potential cancelled state display
     }
+  }
+
+  // Handle loading more issues (Issue #131 - Infinite Scroll)
+  // Phase 6: Added debounce protection and error retry
+  async function loadMore() {
+    const now = Date.now();
+    const DEBOUNCE_MS = 500;
+
+    // Debounce protection - prevent rapid duplicate calls
+    if (now - loadMoreLastCall < DEBOUNCE_MS) {
+      return;
+    }
+
+    // Guard against multiple simultaneous loads or no more pages
+    if (isLoadingMore || !hasMorePages || !nextCursor) {
+      return;
+    }
+
+    const parsed = parseRepoUrl(repoUrl);
+    if (!parsed) {
+      return;
+    }
+
+    loadMoreLastCall = now;
+    isLoadingMore = true;
+    loadMoreError = false;
+
+    try {
+      const api = new GitHubAPI(githubToken || undefined);
+      const result = await api.fetchIssuesPage(parsed.owner, parsed.repo, nextCursor);
+
+      // Append new issues to existing array (Svelte 5 reactive pattern)
+      issues = [...issues, ...result.issues];
+      rateLimit = result.rateLimit;
+      hasMorePages = result.pageInfo.hasNextPage;
+      nextCursor = result.pageInfo.endCursor;
+    } catch (e: unknown) {
+      console.error('[InfiniteScroll] Failed to load more issues:', e);
+      // Show error state with retry option instead of silently failing
+      loadMoreError = true;
+    } finally {
+      isLoadingMore = false;
+    }
+  }
+
+  // Retry loading more after error (Issue #131 Phase 6)
+  function retryLoadMore() {
+    loadMoreError = false;
+    loadMore();
   }
 
   // Handle URL change
@@ -928,6 +1003,8 @@
             {displayedIssues.length === 1 ? 'issue' : 'issues'}
             {#if showOnlyZeroComments && displayedIssues.length !== issues.length}
               <span class="text-xs text-slate-500 font-normal">of {issues.length}</span>
+            {:else if totalIssueCount > issues.length}
+              <span class="text-xs text-slate-500 font-normal">of {totalIssueCount}</span>
             {/if}
           </h2>
           <p class="text-[10px] text-slate-500">
@@ -953,8 +1030,52 @@
         {/each}
       </div>
 
+      <!-- Issue #131: Infinite scroll sentinel element -->
+      {#if hasMorePages && !loadMoreError}
+        <div
+          use:infiniteScroll={{ enabled: hasMorePages && !isLoadingMore && !loadMoreError }}
+          onloadmore={loadMore}
+          class="h-4 w-full"
+          aria-hidden="true"
+        ></div>
+      {/if}
+
+      <!-- Loading skeleton for infinite scroll (Phase 6) -->
+      {#if isLoadingMore}
+        <div class="mt-2 space-y-2">
+          <IssueCardSkeleton count={3} />
+        </div>
+        <div class="flex justify-center py-2">
+          <span class="text-xs text-slate-500">Loading more issues...</span>
+        </div>
+      {/if}
+
+      <!-- Error retry UI for infinite scroll (Phase 6) -->
+      {#if loadMoreError}
+        <div class="mt-4 flex flex-col items-center gap-2 py-4">
+          <p class="text-sm text-red-400">Failed to load more issues</p>
+          <button
+            type="button"
+            onclick={retryLoadMore}
+            class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      {/if}
+
       <div class="mt-6 text-center py-3">
-        <p class="text-[10px] text-slate-500">Pick an issue and start contributing!</p>
+        {#if hasMorePages && !loadMoreError}
+          <p class="text-[10px] text-slate-500">
+            Showing {issues.length} of {totalIssueCount} issues - scroll for more
+          </p>
+        {:else if loadMoreError}
+          <p class="text-[10px] text-slate-500">
+            Showing {issues.length} issues - click retry to load more
+          </p>
+        {:else}
+          <p class="text-[10px] text-slate-500">Pick an issue and start contributing!</p>
+        {/if}
       </div>
     {/if}
   </main>

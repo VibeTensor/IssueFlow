@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Infinite Scroll** (#131): Seamless pagination for large result sets
+  - IntersectionObserver-based scroll detection with 200px preload
+  - Cursor-based pagination for GraphQL API
+  - REST API fallback with page-based pagination
+  - Skeleton loading cards during fetch
+  - Error retry mechanism with retry button
+  - Debounce protection to prevent duplicate API calls
+  - Dynamic footer showing progress (X of Y issues)
+
 - **Toast Notification System** (#174): Visual feedback for copy actions
   - Brief "Copied to clipboard!" toast notification
   - 2-second auto-dismiss with fade animation
