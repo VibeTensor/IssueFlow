@@ -77,7 +77,13 @@ export interface PagedIssuesResponse {
     remaining: number;
     resetAt: string;
   };
+  /**
+   * Total count of issues. Note: For REST API, this is only the current page count
+   * and may not reflect the actual total.
+   */
   totalCount: number;
+  /** Whether totalCount is accurate (true for GraphQL, false for REST fallback) */
+  totalCountAccurate: boolean;
 }
 
 const QUERY = `
@@ -328,7 +334,8 @@ export class GitHubAPI {
           remaining: data.rateLimit.remaining,
           resetAt: data.rateLimit.resetAt
         },
-        totalCount: issues.totalCount
+        totalCount: issues.totalCount,
+        totalCountAccurate: true
       };
     } catch (error: any) {
       // Check if aborted
@@ -436,7 +443,8 @@ export class GitHubAPI {
           remaining: parseInt(response.headers.get('x-ratelimit-remaining') || '60', 10),
           resetAt: new Date().toISOString()
         },
-        totalCount: issues.length // REST doesn't provide total easily
+        totalCount: issues.length, // REST doesn't provide total easily
+        totalCountAccurate: false
       };
     } catch (error: any) {
       if (error.name === 'AbortError' || signal?.aborted) {

@@ -97,6 +97,7 @@
   let nextCursor = $state<string | null>(null);
   let isLoadingMore = $state(false);
   let totalIssueCount = $state(0);
+  let totalCountAccurate = $state(true); // GraphQL provides accurate count, REST does not
   let loadMoreError = $state(false);
   let loadMoreLastCall = $state(0); // Debounce protection
 
@@ -264,6 +265,7 @@
     nextCursor = null;
     isLoadingMore = false;
     totalIssueCount = 0;
+    totalCountAccurate = true;
     loadMoreError = false;
 
     // Create new AbortController
@@ -309,6 +311,7 @@
       hasMorePages = result.pageInfo.hasNextPage;
       nextCursor = result.pageInfo.endCursor;
       totalIssueCount = result.totalCount;
+      totalCountAccurate = result.totalCountAccurate;
 
       // Update progress state for first page
       progressState = {
@@ -373,6 +376,10 @@
       rateLimit = result.rateLimit;
       hasMorePages = result.pageInfo.hasNextPage;
       nextCursor = result.pageInfo.endCursor;
+      // Update accuracy flag if REST fallback was used
+      if (!result.totalCountAccurate) {
+        totalCountAccurate = false;
+      }
     } catch (e: unknown) {
       console.error('[InfiniteScroll] Failed to load more issues:', e);
       // Show error state with retry option instead of silently failing
@@ -1003,7 +1010,7 @@
             {displayedIssues.length === 1 ? 'issue' : 'issues'}
             {#if showOnlyZeroComments && displayedIssues.length !== issues.length}
               <span class="text-xs text-slate-500 font-normal">of {issues.length}</span>
-            {:else if totalIssueCount > issues.length}
+            {:else if totalIssueCount > issues.length && totalCountAccurate}
               <span class="text-xs text-slate-500 font-normal">of {totalIssueCount}</span>
             {/if}
           </h2>
@@ -1067,7 +1074,11 @@
       <div class="mt-6 text-center py-3">
         {#if hasMorePages && !loadMoreError}
           <p class="text-[10px] text-slate-500">
-            Showing {issues.length} of {totalIssueCount} issues - scroll for more
+            {#if totalCountAccurate}
+              Showing {issues.length} of {totalIssueCount} issues - scroll for more
+            {:else}
+              Showing {issues.length} issues - scroll for more
+            {/if}
           </p>
         {:else if loadMoreError}
           <p class="text-[10px] text-slate-500">
