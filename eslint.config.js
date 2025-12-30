@@ -56,7 +56,17 @@ export default tseslint.config(
 
   // 8. Global ignores
   {
-    ignores: ['dist/', 'node_modules/', '.astro/', 'coverage/', '*.min.js']
+    ignores: [
+      'dist/',
+      'node_modules/',
+      '.astro/',
+      'coverage/',
+      '*.min.js',
+      // Svelte 5 runes in .svelte.ts files not yet supported by ESLint parser
+      '**/*.svelte.ts',
+      // Layout.astro has is:inline script that ESLint can't parse
+      'src/layouts/Layout.astro'
+    ]
   },
 
   // 9. Prettier (MUST BE LAST to override conflicting rules)
