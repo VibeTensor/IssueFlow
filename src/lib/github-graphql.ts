@@ -63,6 +63,29 @@ export interface IssuesResponse {
   };
 }
 
+/**
+ * Response type for single-page fetch (Issue #131 - Infinite Scroll)
+ * Used by fetchIssuesPage for incremental loading
+ */
+export interface PagedIssuesResponse {
+  issues: GitHubIssue[];
+  pageInfo: {
+    hasNextPage: boolean;
+    endCursor: string | null;
+  };
+  rateLimit: {
+    remaining: number;
+    resetAt: string;
+  };
+  /**
+   * Total count of issues. Note: For REST API, this is only the current page count
+   * and may not reflect the actual total.
+   */
+  totalCount: number;
+  /** Whether totalCount is accurate (true for GraphQL, false for REST fallback) */
+  totalCountAccurate: boolean;
+}
+
 const QUERY = `
 query FindAvailableIssues($owner: String!, $repo: String!, $cursor: String) {
   repository(owner: $owner, name: $repo) {
@@ -248,6 +271,192 @@ export class GitHubAPI {
       }
 
       throw new Error(`Failed to fetch issues: ${error.message}`);
+    }
+  }
+
+  /**
+   * Fetch a single page of issues (Issue #131 - Infinite Scroll)
+   * Returns issues with pagination info for incremental loading
+   *
+   * @param owner - Repository owner
+   * @param repo - Repository name
+   * @param cursor - Cursor for pagination (null for first page)
+   * @param signal - AbortSignal for cancellation
+   * @returns Single page of issues with pagination info
+   */
+  async fetchIssuesPage(
+    owner: string,
+    repo: string,
+    cursor?: string | null,
+    signal?: AbortSignal
+  ): Promise<PagedIssuesResponse> {
+    // If no token, use REST API fallback
+    if (!this.token) {
+      console.log('[OK] No token provided, using REST API for page fetch');
+      return this.fetchIssuesPageViaREST(owner, repo, cursor, signal);
+    }
+
+    console.log(
+      `[PAGE] Fetching issues page${cursor ? ' (cursor: ' + cursor.substring(0, 10) + '...)' : ' (first page)'}`
+    );
+
+    try {
+      // Check if cancelled before fetch
+      if (signal?.aborted) {
+        throw new DOMException('Aborted', 'AbortError');
+      }
+
+      const data: IssuesResponse = await this.client.request<IssuesResponse>({
+        document: QUERY,
+        variables: { owner, repo, cursor: cursor || null },
+        signal
+      });
+
+      const issues = data.repository.issues;
+
+      // Filter out issues that have linked PRs
+      const issuesWithoutPRs = issues.nodes.filter((issue) => {
+        const hasPR = issue.timelineItems.nodes.some((item) => item.source?.number);
+        return !hasPR;
+      });
+
+      console.log(
+        `[PAGE] Fetched ${issuesWithoutPRs.length} issues (${issues.totalCount} total in repo), hasNextPage: ${issues.pageInfo.hasNextPage}`
+      );
+
+      return {
+        issues: issuesWithoutPRs,
+        pageInfo: {
+          hasNextPage: issues.pageInfo.hasNextPage,
+          endCursor: issues.pageInfo.endCursor
+        },
+        rateLimit: {
+          remaining: data.rateLimit.remaining,
+          resetAt: data.rateLimit.resetAt
+        },
+        totalCount: issues.totalCount,
+        totalCountAccurate: true
+      };
+    } catch (error: any) {
+      // Check if aborted
+      if (error.name === 'AbortError' || signal?.aborted) {
+        console.log('[CANCELLED] Page fetch was aborted');
+        throw error; // Re-throw abort errors
+      }
+
+      // Handle authentication errors - try REST API fallback
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        console.log('[WARN] GraphQL authentication failed, falling back to REST API...');
+        return this.fetchIssuesPageViaREST(owner, repo, cursor, signal);
+      }
+
+      if (error.response?.errors) {
+        const errorMsg = error.response.errors[0]?.message || 'GitHub API error';
+        throw new Error(errorMsg);
+      }
+
+      throw new Error(`Failed to fetch issues page: ${error.message}`);
+    }
+  }
+
+  /**
+   * Fetch a single page of issues via REST API (Issue #131 - Infinite Scroll)
+   * Fallback for unauthenticated access
+   */
+  private async fetchIssuesPageViaREST(
+    owner: string,
+    repo: string,
+    cursor?: string | null,
+    signal?: AbortSignal
+  ): Promise<PagedIssuesResponse> {
+    // For REST API, cursor is the page number encoded as string
+    // First page: cursor is null/undefined, subsequent: cursor is page number
+    let page = 1;
+    if (cursor) {
+      const parsed = parseInt(cursor, 10);
+      // Validate it's a valid page number (REST cursors are numeric strings)
+      // GraphQL cursors are base64 and would parse to NaN
+      page = Number.isNaN(parsed) || parsed < 1 ? 1 : parsed;
+    }
+    const perPage = 100;
+
+    console.log(`[REST] Fetching page ${page} from ${owner}/${repo}`);
+
+    try {
+      if (signal?.aborted) {
+        throw new DOMException('Aborted', 'AbortError');
+      }
+
+      const response = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/issues?state=open&per_page=${perPage}&page=${page}&assignee=none`,
+        {
+          signal,
+          headers: this.token ? { Authorization: `Bearer ${this.token}` } : {}
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Repository not found. Please check the URL.');
+        }
+        if (response.status === 403) {
+          const rateLimitRemaining = response.headers.get('x-ratelimit-remaining');
+          if (rateLimitRemaining === '0') {
+            throw new Error('GitHub API rate limit exceeded. Sign in for 5000 requests/hour.');
+          }
+          throw new Error('GitHub API access denied (403).');
+        }
+        throw new Error(`GitHub API error: ${response.status}`);
+      }
+
+      const rawIssues = await response.json();
+
+      // Filter out pull requests (they come as issues in REST API)
+      const actualIssues = rawIssues.filter((issue: any) => !issue.pull_request);
+
+      // Convert REST format to GitHubIssue format
+      const issues: GitHubIssue[] = actualIssues.map((issue: any) => ({
+        number: issue.number,
+        title: issue.title,
+        url: issue.html_url,
+        body: issue.body || '',
+        createdAt: issue.created_at,
+        updatedAt: issue.updated_at,
+        comments: { totalCount: issue.comments },
+        labels: {
+          nodes: issue.labels.map((label: any) => ({
+            name: label.name,
+            color: label.color,
+            description: label.description
+          }))
+        },
+        timelineItems: { nodes: [] }
+      }));
+
+      // REST API doesn't give us total count easily, estimate based on results
+      const hasNextPage = rawIssues.length === perPage;
+      const nextCursor = hasNextPage ? String(page + 1) : null;
+
+      console.log(`[REST] Fetched ${issues.length} issues, hasNextPage: ${hasNextPage}`);
+
+      return {
+        issues,
+        pageInfo: {
+          hasNextPage,
+          endCursor: nextCursor
+        },
+        rateLimit: {
+          remaining: parseInt(response.headers.get('x-ratelimit-remaining') || '60', 10),
+          resetAt: new Date().toISOString()
+        },
+        totalCount: issues.length, // REST doesn't provide total easily
+        totalCountAccurate: false
+      };
+    } catch (error: any) {
+      if (error.name === 'AbortError' || signal?.aborted) {
+        throw error;
+      }
+      throw new Error(`Failed to fetch issues page via REST: ${error.message}`);
     }
   }
 
