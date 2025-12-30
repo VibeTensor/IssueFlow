@@ -1699,39 +1699,43 @@ const ogImage = `${siteUrl}/og-image.png`;
          CANCEL CONFIRM MODAL - LIGHT MODE
          ======================================== */
 
-      /* Lighter backdrop for light mode */
+      /* Solid backdrop - hide everything behind */
       html:not(.dark) .modal-backdrop {
-        background: rgba(100, 116, 139, 0.6) !important;
+        background: rgba(71, 85, 105, 0.85) !important;
+        backdrop-filter: blur(8px) !important;
       }
 
-      /* Modal container - clean white with soft shadow */
+      /* Modal container - SOLID white background, no transparency */
       html:not(.dark) .cancel-modal {
-        background: rgba(255, 255, 255, 0.98) !important;
+        background: #ffffff !important;
+        backdrop-filter: none !important;
         box-shadow:
-          0 25px 50px -12px rgba(0, 0, 0, 0.25),
-          0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+          0 25px 50px -12px rgba(0, 0, 0, 0.3),
+          0 0 0 1px rgba(0, 0, 0, 0.08) !important;
       }
 
       html:not(.dark) .cancel-modal::before {
-        border-color: rgba(203, 213, 225, 0.6) !important;
+        border-color: rgba(203, 213, 225, 0.8) !important;
+        background: transparent !important;
       }
 
-      /* Warning icon - amber/orange circle */
+      /* Warning icon - solid amber background */
       html:not(.dark) .modal-icon {
-        background: rgba(251, 191, 36, 0.15) !important;
-        color: #f59e0b !important;
+        background: #fef3c7 !important;
+        color: #d97706 !important;
       }
 
       /* Title - dark text */
       html:not(.dark) .modal-title {
         color: #0f172a !important;
+        background: transparent !important;
       }
 
-      /* Issues info box - subtle gray background */
+      /* Issues info box - SOLID background */
       html:not(.dark) .issues-info {
-        background: rgba(241, 245, 249, 0.9) !important;
+        background: #f1f5f9 !important;
         color: #475569 !important;
-        border: 1px solid rgba(203, 213, 225, 0.5) !important;
+        border: 1px solid #cbd5e1 !important;
       }
 
       html:not(.dark) .issues-info .info-icon {
@@ -1742,42 +1746,48 @@ const ogImage = `${siteUrl}/og-image.png`;
         color: #0f172a !important;
       }
 
-      /* Description text */
+      /* Description text - solid background inherited from modal */
       html:not(.dark) .modal-description {
         color: #64748b !important;
+        background: transparent !important;
       }
 
-      /* Continue Loading button - teal gradient (same as dark) */
+      /* Modal actions container - ensure no visual artifacts */
+      html:not(.dark) .modal-actions {
+        background: transparent !important;
+      }
+
+      /* Continue Loading button - SOLID teal */
       html:not(.dark) .btn-continue {
         background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%) !important;
         color: #ffffff !important;
         border: none !important;
-        box-shadow: 0 2px 8px rgba(20, 184, 166, 0.3) !important;
+        box-shadow: 0 2px 8px rgba(20, 184, 166, 0.35) !important;
       }
 
       html:not(.dark) .btn-continue:hover {
         background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%) !important;
         color: #ffffff !important;
-        box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4) !important;
+        box-shadow: 0 4px 12px rgba(20, 184, 166, 0.45) !important;
       }
 
-      /* Yes, Show Results button - amber styling matching dark mode feel */
+      /* Yes, Show Results button - SOLID amber background */
       html:not(.dark) .btn-cancel {
-        color: #b45309 !important;
-        background: rgba(251, 191, 36, 0.12) !important;
-        border: 1px solid rgba(245, 158, 11, 0.4) !important;
+        color: #92400e !important;
+        background: #fef3c7 !important;
+        border: 1px solid #fcd34d !important;
       }
 
       html:not(.dark) .btn-cancel:hover {
-        background: rgba(251, 191, 36, 0.2) !important;
-        border-color: rgba(245, 158, 11, 0.6) !important;
-        color: #92400e !important;
+        background: #fde68a !important;
+        border-color: #fbbf24 !important;
+        color: #78350f !important;
       }
 
-      /* Button icons */
+      /* Button icons - full opacity */
       html:not(.dark) .btn-continue .btn-icon,
       html:not(.dark) .btn-cancel .btn-icon {
-        opacity: 0.9;
+        opacity: 1 !important;
       }
 
       /* ========================================
