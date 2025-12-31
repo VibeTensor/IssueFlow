@@ -115,6 +115,26 @@ const DEVICON_NAME_MAP: Record<string, string> = {
 };
 
 /**
+ * Languages without Devicon support (hoisted to module scope for performance)
+ */
+const UNSUPPORTED_DEVICON_LANGUAGES = new Set([
+  'graphql',
+  'sql',
+  'markdown',
+  'yaml',
+  'json',
+  'terraform',
+  'kubernetes',
+  'aws',
+  'azure',
+  'gcp',
+  'bun',
+  'astro',
+  'tailwind',
+  'tailwindcss'
+]);
+
+/**
  * Get the Devicon CDN URL for a programming language icon
  *
  * @param language - Language name (case-insensitive)
@@ -124,25 +144,7 @@ export function getDevIconUrl(language: string): string | null {
   const normalized = language.toLowerCase().trim();
   const deviconName = DEVICON_NAME_MAP[normalized] || normalized;
 
-  // Devicon doesn't have icons for all languages
-  const unsupportedLanguages = new Set([
-    'graphql',
-    'sql',
-    'markdown',
-    'yaml',
-    'json',
-    'terraform',
-    'kubernetes',
-    'aws',
-    'azure',
-    'gcp',
-    'bun',
-    'astro',
-    'tailwind',
-    'tailwindcss'
-  ]);
-
-  if (unsupportedLanguages.has(normalized)) {
+  if (UNSUPPORTED_DEVICON_LANGUAGES.has(normalized)) {
     return null;
   }
 

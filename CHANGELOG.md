@@ -83,7 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Clear button to reset language selections
   - Integrated in sidebar filter panel below Labels
   - SvelteSet for optimal reactive state management
-  - maxChips prop to limit displayed languages (default: 8)
+  - maxChips prop to limit displayed languages (default: 10)
   - prefers-reduced-motion support for animations
 
 - **Search Autocomplete** (#129): Intelligent suggestions while typing

@@ -10,10 +10,11 @@
   - Language icons from Devicon CDN
   - GitHub Linguist colors
   - ARIA listbox pattern for accessibility
-  - Keyboard navigation (Tab, Arrow keys, Space/Enter)
+  - Keyboard navigation (Tab, Space/Enter to toggle)
 -->
 
 <script lang="ts">
+  import { SvelteSet } from 'svelte/reactivity';
   import type { LanguageFrequency } from '../../lib/language-utils';
   import { getDevIconUrl } from '../../lib/language-utils';
 
@@ -33,8 +34,8 @@
   // Get displayed languages (limited by maxChips)
   let displayedLanguages = $derived(languages.slice(0, maxChips));
 
-  // Track which icons failed to load for fallback
-  let failedIcons = $state<Set<string>>(new Set());
+  // Track which icons failed to load for fallback (SvelteSet is already reactive)
+  let failedIcons: Set<string> = new SvelteSet();
 
   /**
    * Check if a language is currently selected
@@ -64,7 +65,7 @@
    * Handle icon load error - fallback to colored dot
    */
   function handleIconError(language: string): void {
-    failedIcons = new Set([...failedIcons, language]);
+    failedIcons.add(language);
   }
 
   /**
