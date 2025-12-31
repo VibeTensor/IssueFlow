@@ -52,7 +52,7 @@
   });
 
   // Background color for track (unfilled portion)
-  let trackClass = $derived('bg-slate-700/50');
+  const trackClass = 'bg-slate-700/50';
 </script>
 
 <div
