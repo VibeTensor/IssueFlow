@@ -1680,6 +1680,11 @@ const ogImage = `${siteUrl}/og-image.png`;
         background-color: rgba(220, 38, 38, 0.15) !important;
       }
 
+      /* Complexity meter - Issue #152 */
+      html:not(.dark) .complexity-meter > div {
+        background-color: rgba(148, 163, 184, 0.3) !important;
+      }
+
       /* Dropdown trigger */
       html:not(.dark) .dropdown-trigger {
         background: #ffffff !important;

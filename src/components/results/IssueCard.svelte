@@ -27,6 +27,7 @@
   import { ContextMenu } from '../shared';
   import { longpress } from '../../lib/longpress';
   import DifficultyBadge from './DifficultyBadge.svelte';
+  import ComplexityMeter from './ComplexityMeter.svelte';
 
   interface Props {
     issue: GitHubIssue;
@@ -178,6 +179,9 @@
               {/if}
               <DifficultyBadge {issue} size="sm" />
             </div>
+            <div class="flex items-center gap-1.5 flex-1 max-w-20">
+              <ComplexityMeter {issue} />
+            </div>
             <div class="flex items-center gap-1.5">
               <button
                 type="button"
@@ -301,6 +305,9 @@
                 >
               {/if}
               <DifficultyBadge {issue} size="md" />
+              <div class="flex-1 max-w-24">
+                <ComplexityMeter {issue} />
+              </div>
             </div>
             <h3
               class="text-sm font-semibold text-white hover:text-slate-200 mb-1.5 leading-snug line-clamp-2"
