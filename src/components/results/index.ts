@@ -3,6 +3,7 @@
  * Issue #35 - Refactoring ResultsList.svelte (1,610 lines) into modular components
  * Issue #125 - Added IssueCardSkeleton for loading states
  * Issue #147 - Added RepoStatsPanel for repository statistics
+ * Issue #145 - Added DifficultyBadge for visual difficulty indicators
  *
  * Component Hierarchy:
  * - ResultsContainer (~512 lines) - Main orchestrator, state management, API calls
@@ -14,11 +15,12 @@
  *   │   ├── FilterControls (~83 lines) - "Easy Issues Only" toggle
  *   │   ├── SortControls (~63 lines) - Sort by comments dropdown
  *   │   ├── ClearFiltersButton (~30 lines) - Reset filters button
- *   │   ├── IssueCard (~305 lines) - Single issue display with labels, time, copy, flip
- *   │   └── IssueCardSkeleton (~100 lines) - Loading skeleton placeholder
+ *   │   ├── IssueCard (~315 lines) - Single issue display with labels, time, copy, flip
+ *   │   ├── IssueCardSkeleton (~100 lines) - Loading skeleton placeholder
+ *   │   └── DifficultyBadge (~45 lines) - Visual difficulty badge (Easy/Medium/Hard)
  *   └── HelpPopup (~271 lines) - Help modal with step-by-step guide
  *
- * Total: ~2,400 lines across 12 focused components
+ * Total: ~2,450 lines across 13 focused components
  * Bundle size reduced by ~11KB due to better tree-shaking
  */
 
@@ -33,5 +35,6 @@ export { default as ClearFiltersButton } from './ClearFiltersButton.svelte';
 export { default as SearchForm } from './SearchForm.svelte';
 export { default as IssueCard } from './IssueCard.svelte';
 export { default as IssueCardSkeleton } from './IssueCardSkeleton.svelte';
+export { default as DifficultyBadge } from './DifficultyBadge.svelte';
 export { default as IssuesList } from './IssuesList.svelte';
 export { default as ResultsContainer } from './ResultsContainer.svelte';

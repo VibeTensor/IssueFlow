@@ -4,6 +4,7 @@
   Issue #125 - Added flip animation to show issue details
   Issue #181 - Added "Good First Issue" badge for beginner-friendly issues
   Issue #139 - Added quick actions context menu (right-click/long-press)
+  Issue #145 - Added difficulty badge (Easy/Medium/Hard)
 
   Displays a single GitHub issue with:
   - Issue number badge
@@ -14,6 +15,7 @@
   - Copy and View action buttons
   - "Easy to Start" badge for zero-comment issues
   - "Good First Issue" badge for issues with good-first-issue label
+  - Difficulty badge (Easy/Medium/Hard) with tooltip
   - Flip animation to reveal issue body preview
   - Context menu with Copy Link, Open in New Tab, Bookmark actions
 -->
@@ -24,6 +26,7 @@
   import { isZeroComment, getBodyPreview, hasBody } from '../../lib/issue-utils';
   import { ContextMenu } from '../shared';
   import { longpress } from '../../lib/longpress';
+  import DifficultyBadge from './DifficultyBadge.svelte';
 
   interface Props {
     issue: GitHubIssue;
@@ -173,6 +176,7 @@
                   title="Great for first-time contributors">Beginner</span
                 >
               {/if}
+              <DifficultyBadge {issue} size="sm" />
             </div>
             <div class="flex items-center gap-1.5">
               <button
@@ -296,6 +300,7 @@
                   title="Great for first-time contributors">Good First Issue</span
                 >
               {/if}
+              <DifficultyBadge {issue} size="md" />
             </div>
             <h3
               class="text-sm font-semibold text-white hover:text-slate-200 mb-1.5 leading-snug line-clamp-2"
