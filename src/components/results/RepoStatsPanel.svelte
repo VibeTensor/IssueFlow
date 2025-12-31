@@ -24,6 +24,9 @@
 
   let isExpanded = $state(true);
 
+  // Generate unique ID for aria-controls (fixes duplicate ID issue)
+  const contentId = `stats-content-${Math.random().toString(36).slice(2, 9)}`;
+
   /**
    * Format large numbers with K/M suffix
    */
@@ -40,13 +43,6 @@
   function toggleExpanded() {
     isExpanded = !isExpanded;
   }
-
-  function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      toggleExpanded();
-    }
-  }
 </script>
 
 {#if stats || loading}
@@ -56,9 +52,8 @@
       type="button"
       class="stats-header"
       onclick={toggleExpanded}
-      onkeydown={handleKeydown}
       aria-expanded={isExpanded}
-      aria-controls="stats-content"
+      aria-controls={contentId}
     >
       <div class="header-left">
         <svg
@@ -93,7 +88,7 @@
 
     <!-- Stats Content -->
     {#if isExpanded}
-      <div id="stats-content" class="stats-content">
+      <div id={contentId} class="stats-content">
         {#if loading}
           <!-- Loading skeleton -->
           <div class="stats-grid">

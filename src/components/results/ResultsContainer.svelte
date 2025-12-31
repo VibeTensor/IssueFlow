@@ -325,7 +325,7 @@
           null, // No cursor for first page
           abortController.signal
         ),
-        api.fetchRepoStats(parsed.owner, parsed.repo)
+        api.fetchRepoStats(parsed.owner, parsed.repo, abortController.signal)
       ]);
 
       issues = issuesResult.issues;

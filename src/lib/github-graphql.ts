@@ -608,10 +608,15 @@ export class GitHubAPI {
    * Fetch repository statistics (Issue #147)
    * Returns stars, forks, issues count, and other metadata
    */
-  async fetchRepoStats(owner: string, repo: string): Promise<RepoStats | null> {
+  async fetchRepoStats(
+    owner: string,
+    repo: string,
+    signal?: AbortSignal
+  ): Promise<RepoStats | null> {
     try {
       const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-        headers: this.token ? { Authorization: `Bearer ${this.token}` } : {}
+        headers: this.token ? { Authorization: `Bearer ${this.token}` } : {},
+        signal
       });
 
       if (!response.ok) {
