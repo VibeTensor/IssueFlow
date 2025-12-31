@@ -474,18 +474,13 @@ const ogImage = `${siteUrl}/og-image.png`;
       /* ========================================
          HEADER
          Issue #190 - Redesign header and footer branding
+         Uses UnoCSS utility classes - override bg-slate-900 in light mode
          ======================================== */
 
-      html:not(.dark) header,
-      html:not(.dark) .header,
-      html:not(.dark) [class*='header']:not([class*='internetMessageHeaders']) {
+      html:not(.dark) header {
         background: #f1f5f9 !important;
         background-color: #f1f5f9 !important;
         border-bottom-color: #e2e8f0 !important;
-      }
-
-      html:not(.dark) .tagline {
-        color: #64748b !important;
       }
 
       /* ========================================
