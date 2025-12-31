@@ -40,6 +40,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - aria-label for descriptive screen reader context
   - Screen reader warning when API rate limit is low (<10 requests)
 
+- **Visual Issue Difficulty Badges** (#145): Color-coded difficulty indicators
+  - Automatic difficulty calculation (Easy/Medium/Hard)
+  - Weighted scoring: Labels (40%), Comments (30%), Body Length (30%)
+  - Green badge for Easy, Amber for Medium, Red for Hard issues
+  - Tooltip with difficulty explanation on hover
+  - Recognizes beginner-friendly labels (good first issue, documentation, etc.)
+  - Accessible with aria-label and text labels (not color-only)
+  - Integrated in both mobile and desktop IssueCard layouts
+
 - **Repository Statistics Summary Panel** (#147): Collapsible stats display
   - Stars, forks, open issues, and watchers count at a glance
   - Number formatting with K/M suffix for large numbers
