@@ -35,6 +35,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Responsive design with hidden tagline on mobile
   - Accessible with ARIA labels and semantic HTML
 
+- **RateLimitDisplay Accessibility** (#215): WCAG 2.1 compliant rate limit status
+  - role="status" for semantic live region (implicit aria-live and aria-atomic)
+  - aria-label for descriptive screen reader context
+  - Screen reader warning when API rate limit is low (<10 requests)
+
 - **Search Autocomplete** (#129): Intelligent suggestions while typing
   - Combines search history with popular repository suggestions
   - Prefix-based filtering with case-insensitive matching
