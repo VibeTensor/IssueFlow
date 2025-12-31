@@ -7,7 +7,7 @@
 <script lang="ts">
   import { REPO_URL, COMPANY_SHORT } from '../../lib/footer-utils';
 
-  const version = __APP_VERSION__;
+  const version: string = __APP_VERSION__;
 </script>
 
 <header class="header" aria-label="Site header">
@@ -156,7 +156,7 @@
     }
 
     .nav-right {
-      gap: 0;
+      gap: 0.125rem;
     }
 
     .nav-link {
