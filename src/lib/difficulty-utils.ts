@@ -92,7 +92,7 @@ function hasMatchingLabel(issue: GitHubIssue, patterns: string[]): boolean {
   return issue.labels.nodes.some((label) => {
     const normalized = normalizeLabel(label.name);
     return normalizedPatterns.some(
-      (pattern) => normalized.includes(pattern) || pattern.includes(normalized)
+      (pattern) => normalized === pattern || normalized.includes(pattern)
     );
   });
 }
