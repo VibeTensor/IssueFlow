@@ -62,6 +62,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Responsive 2-column grid on mobile devices
   - prefers-reduced-motion support
 
+- **Visual Issue Complexity Meter** (#152): Progress bar showing issue complexity
+  - Linear progress bar visualization (0-100% scale)
+  - Gradient colors: Green (easy), Amber (medium), Red (hard)
+  - Reuses difficulty scoring from Issue #145
+  - Tooltip with complexity percentage and breakdown
+  - Integrated alongside DifficultyBadge in IssueCard
+  - WCAG 2.1 accessible with progressbar role
+  - Responsive sizing for mobile and desktop layouts
+  - Light mode support with CSS overrides
+
 - **Search Autocomplete** (#129): Intelligent suggestions while typing
   - Combines search history with popular repository suggestions
   - Prefix-based filtering with case-insensitive matching
