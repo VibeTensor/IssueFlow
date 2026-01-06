@@ -270,7 +270,9 @@
     </svg>
     Export
     <svg
-      class="chevron-icon w-2.5 h-2.5 transition-transform {showDropdown ? 'rotate-180' : ''}"
+      class="w-2.5 h-2.5 transition-transform motion-reduce:transition-none {showDropdown
+        ? 'rotate-180'
+        : ''}"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -283,7 +285,7 @@
   {#if showDropdown}
     <div
       bind:this={menuRef}
-      class="export-menu absolute left-0 top-full mt-1 w-36 bg-slate-800 rounded shadow-lg border border-slate-700 overflow-hidden z-50"
+      class="absolute left-0 top-full mt-1 w-36 bg-slate-800 rounded shadow-lg border border-slate-700 overflow-hidden z-50 focus:outline-none focus:ring-1 focus:ring-slate-500/50"
       role="menu"
       aria-label="Export formats"
       aria-activedescendant={activeDescendantId}
@@ -296,8 +298,9 @@
           type="button"
           onclick={() => exportIssues(item.id)}
           onmouseenter={() => (focusedIndex = index)}
-          class="menu-item w-full px-2.5 py-1.5 text-left text-[10px] text-slate-300 hover:bg-slate-700 hover:text-white"
-          class:focused={focusedIndex === index}
+          class="w-full px-2.5 py-1.5 text-left text-[10px] text-slate-300 hover:bg-slate-700 hover:text-white transition-colors duration-150 ease motion-reduce:transition-none"
+          class:bg-slate-700={focusedIndex === index}
+          class:text-white={focusedIndex === index}
           role="menuitem"
           tabindex="-1"
         >
@@ -307,30 +310,3 @@
     </div>
   {/if}
 </div>
-
-<style>
-  .menu-item {
-    transition: background-color 150ms ease;
-  }
-
-  .menu-item.focused {
-    background-color: rgb(51 65 85); /* slate-700 */
-    color: white;
-  }
-
-  .export-menu:focus {
-    outline: 2px solid transparent; /* Remove default but keep space */
-    box-shadow: 0 0 0 1px rgb(100 116 139 / 0.5); /* subtle slate ring */
-  }
-
-  /* Reduced motion preference */
-  @media (prefers-reduced-motion: reduce) {
-    .menu-item {
-      transition: none;
-    }
-
-    .chevron-icon {
-      transition: none !important;
-    }
-  }
-</style>
