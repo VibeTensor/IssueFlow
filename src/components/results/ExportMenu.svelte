@@ -220,7 +220,7 @@
     if (issues.length === 0) return;
 
     const formattedText = formatIssuesForExport(issues, format);
-    showDropdown = false;
+    closeDropdown(true);
 
     // Generate filename with repo name and timestamp
     const timestamp = new Date().toISOString().split('T')[0];
@@ -266,7 +266,7 @@
     </svg>
     Export
     <svg
-      class="w-2.5 h-2.5 transition-transform {showDropdown ? 'rotate-180' : ''}"
+      class="chevron-icon w-2.5 h-2.5 transition-transform {showDropdown ? 'rotate-180' : ''}"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -320,6 +320,10 @@
   @media (prefers-reduced-motion: reduce) {
     .menu-item {
       transition: none;
+    }
+
+    :global(.chevron-icon) {
+      transition: none !important;
     }
   }
 </style>
