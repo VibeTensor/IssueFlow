@@ -1169,7 +1169,7 @@
             issues={displayedIssues}
             width={800}
             height={600}
-            onNodeClick={(issue) => window.open(issue.url, '_blank')}
+            onNodeClick={(issue) => window.open(issue.url, '_blank', 'noopener,noreferrer')}
           />
         </div>
       {/if}
