@@ -21,11 +21,18 @@
     getNodesInCluster,
     getNodesBoundingBox,
     type ClusterNode,
-    type ClusterData,
-    type Cluster
+    type ClusterData
   } from '../../lib/clustering-utils';
 
   // Server-side API response types
+  interface ServerCluster {
+    name: string;
+    color: string;
+    count: number;
+    x: number;
+    y: number;
+  }
+
   interface ServerClusterNode {
     id: string;
     cluster: string;
@@ -42,7 +49,7 @@
   }
 
   interface ServerLayoutResponse {
-    clusters: Cluster[];
+    clusters: ServerCluster[];
     nodes: ServerClusterNode[];
     meta: {
       totalIssues: number;
