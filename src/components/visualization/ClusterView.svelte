@@ -51,6 +51,8 @@
   let clusterData = $state<ClusterData>({ clusters: [], nodes: [] });
   let hoveredNode = $state<ClusterNode | null>(null);
   let selectedCluster = $state<string | null>(null);
+  let isSimulationRunning = $state(false);
+  let tooltipPosition = $state({ x: 0, y: 0 });
 
   // Derived: clusters with positions
   let positionedClusters = $derived(calculateClusterPositions(clusterData.clusters, width, height));
@@ -178,6 +180,13 @@
       .style('cursor', 'pointer')
       .on('mouseenter', (event, d) => {
         hoveredNode = d;
+        // Calculate tooltip position near the node
+        const nodeX = d.x ?? 0;
+        const nodeY = d.y ?? 0;
+        tooltipPosition = {
+          x: Math.min(nodeX + 20, width - 200),
+          y: Math.max(nodeY - 80, 20)
+        };
         d3.select(event.target).attr('stroke', '#fff').attr('stroke-width', 3);
       })
       .on('mouseleave', (event) => {
@@ -198,9 +207,13 @@
           .on('end', dragEnded)
       );
 
-    // Update positions on simulation tick
+    // Track simulation state and update positions on tick
+    isSimulationRunning = true;
     simulation.on('tick', () => {
       nodes.attr('cx', (d) => d.x!).attr('cy', (d) => d.y!);
+    });
+    simulation.on('end', () => {
+      isSimulationRunning = false;
     });
 
     // Click on background to reset zoom
@@ -333,14 +346,22 @@
   <svg bind:this={svgElement} {width} {height} viewBox="0 0 {width} {height}" class="cluster-svg">
   </svg>
 
-  <!-- Tooltip -->
+  <!-- Simulation Running Indicator -->
+  {#if isSimulationRunning}
+    <div class="simulation-indicator">
+      <span class="pulse-dot"></span>
+      <span>Arranging nodes...</span>
+    </div>
+  {/if}
+
+  <!-- Tooltip (Dynamic Position) -->
   {#if hoveredNode}
-    <div class="tooltip" style="opacity: 1">
+    <div class="tooltip" style="left: {tooltipPosition.x}px; top: {tooltipPosition.y}px;">
       <div class="tooltip-title">#{hoveredNode.issue.number}</div>
       <div class="tooltip-body">{hoveredNode.issue.title}</div>
       <div class="tooltip-meta">
-        <span style="color: #{hoveredNode.color}">{hoveredNode.cluster}</span>
-        <span>{hoveredNode.issue.comments?.totalCount ?? 0} comments</span>
+        <span class="tooltip-label" style="color: #{hoveredNode.color}">{hoveredNode.cluster}</span>
+        <span class="tooltip-comments">{hoveredNode.issue.comments?.totalCount ?? 0} comments</span>
       </div>
     </div>
   {/if}
@@ -362,6 +383,55 @@
     height: auto;
   }
 
+  /* Node glow effect (applied via D3) */
+  .cluster-svg :global(.node) {
+    filter: drop-shadow(0 0 3px currentColor);
+    transition:
+      filter 0.2s ease,
+      r 0.2s ease;
+  }
+
+  .cluster-svg :global(.node:hover) {
+    filter: drop-shadow(0 0 8px currentColor) drop-shadow(0 0 12px currentColor);
+  }
+
+  /* Simulation Running Indicator */
+  .simulation-indicator {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(20, 184, 166, 0.3);
+    border-radius: 20px;
+    font-size: 12px;
+    color: #94a3b8;
+    z-index: 10;
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #14b8a6;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 0.4;
+      transform: scale(0.8);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
   /* Zoom Controls */
   .zoom-controls {
     position: absolute;
@@ -374,21 +444,31 @@
   }
 
   .zoom-controls button {
-    width: 32px;
-    height: 32px;
-    padding: 6px;
+    width: 36px;
+    height: 36px;
+    padding: 8px;
     background: rgba(30, 41, 59, 0.9);
     border: 1px solid rgba(71, 85, 105, 0.5);
-    border-radius: 6px;
+    border-radius: 8px;
     color: #94a3b8;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
   }
 
   .zoom-controls button:hover {
     background: rgba(51, 65, 85, 0.9);
     color: white;
     border-color: rgba(100, 116, 139, 0.6);
+    transform: scale(1.05);
+  }
+
+  .zoom-controls button:focus-visible {
+    outline: 2px solid #14b8a6;
+    outline-offset: 2px;
+  }
+
+  .zoom-controls button:active {
+    transform: scale(0.95);
   }
 
   .zoom-controls button svg {
@@ -403,41 +483,48 @@
     left: 12px;
     background: rgba(15, 23, 42, 0.95);
     border: 1px solid rgba(71, 85, 105, 0.4);
-    border-radius: 8px;
-    padding: 8px;
-    max-height: 200px;
+    border-radius: 10px;
+    padding: 10px;
+    max-height: 220px;
     overflow-y: auto;
     z-index: 10;
-    min-width: 140px;
+    min-width: 150px;
+    backdrop-filter: blur(8px);
   }
 
   .legend-title {
-    font-size: 10px;
-    font-weight: 600;
-    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 6px;
-    padding-bottom: 4px;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
     border-bottom: 1px solid rgba(71, 85, 105, 0.3);
   }
 
   .legend-item {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     width: 100%;
-    padding: 4px 6px;
+    padding: 6px 8px;
     background: transparent;
     border: 1px solid transparent;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
     text-align: left;
   }
 
   .legend-item:hover {
     background: rgba(51, 65, 85, 0.5);
+    transform: translateX(2px);
+  }
+
+  .legend-item:focus-visible {
+    outline: 2px solid #14b8a6;
+    outline-offset: 2px;
   }
 
   .legend-item.selected {
@@ -446,55 +533,72 @@
   }
 
   .legend-color {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     flex-shrink: 0;
+    box-shadow: 0 0 6px currentColor;
   }
 
   .legend-name {
     flex: 1;
-    font-size: 11px;
+    font-size: 12px;
     color: #e2e8f0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: 500;
   }
 
   .legend-count {
-    font-size: 10px;
-    color: #64748b;
-    background: rgba(51, 65, 85, 0.5);
-    padding: 1px 5px;
+    font-size: 11px;
+    color: #94a3b8;
+    background: rgba(51, 65, 85, 0.6);
+    padding: 2px 7px;
     border-radius: 9999px;
+    font-weight: 600;
   }
 
   /* Tooltip */
   .tooltip {
     position: absolute;
-    bottom: 12px;
-    left: 12px;
-    background: rgba(15, 23, 42, 0.95);
+    background: rgba(15, 23, 42, 0.98);
     border: 1px solid rgba(71, 85, 105, 0.5);
-    border-radius: 8px;
-    padding: 10px 12px;
-    max-width: 280px;
+    border-radius: 10px;
+    padding: 12px 14px;
+    max-width: 260px;
     z-index: 20;
     pointer-events: none;
+    backdrop-filter: blur(8px);
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.4),
+      0 0 1px rgba(255, 255, 255, 0.1);
+    animation: tooltipFadeIn 0.15s ease-out;
+  }
+
+  @keyframes tooltipFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .tooltip-title {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     color: #14b8a6;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
 
   .tooltip-body {
-    font-size: 12px;
+    font-size: 13px;
     color: #e2e8f0;
-    line-height: 1.4;
-    margin-bottom: 6px;
+    line-height: 1.5;
+    margin-bottom: 8px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -503,9 +607,17 @@
 
   .tooltip-meta {
     display: flex;
-    gap: 8px;
-    font-size: 10px;
+    gap: 10px;
+    font-size: 11px;
     color: #94a3b8;
+  }
+
+  .tooltip-label {
+    font-weight: 600;
+  }
+
+  .tooltip-comments {
+    opacity: 0.8;
   }
 
   /* Scrollbar for legend */
