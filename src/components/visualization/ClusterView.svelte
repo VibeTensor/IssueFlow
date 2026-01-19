@@ -11,7 +11,7 @@
 -->
 
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onDestroy } from 'svelte';
   import * as d3 from 'd3';
   import type { GitHubIssue } from '../../lib/github-graphql';
   import {
@@ -20,7 +20,6 @@
     getNodesInCluster,
     getNodesBoundingBox,
     type ClusterNode,
-    type Cluster,
     type ClusterData
   } from '../../lib/clustering-utils';
 
@@ -57,19 +56,31 @@
   // Derived: clusters with positions
   let positionedClusters = $derived(calculateClusterPositions(clusterData.clusters, width, height));
 
+  // Debounce timer for $effect
+  let initDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
   // Node radius based on comment count
   function getNodeRadius(node: ClusterNode): number {
-    const baseRadius = 8;
+    const baseRadius = 6;
     const comments = node.issue.comments?.totalCount ?? 0;
-    return baseRadius + Math.min(comments, 10) * 0.5;
+    return baseRadius + Math.min(comments, 5) * 0.4;
   }
 
   // Initialize D3 visualization
   function initializeVisualization() {
     if (!svgElement) return;
 
+    // Stop any existing simulation before reinitializing (performance fix)
+    if (simulation) {
+      simulation.stop();
+    }
+
+    // Limit nodes for performance (max 30 issues in visualization)
+    const maxNodes = 30;
+    const limitedIssues = issues.length > maxNodes ? issues.slice(0, maxNodes) : issues;
+
     // Process issues into cluster data
-    clusterData = clusterIssuesByLabel(issues);
+    clusterData = clusterIssuesByLabel(limitedIssues);
 
     if (clusterData.nodes.length === 0) return;
 
@@ -108,25 +119,47 @@
       }
     }
 
-    // Create force simulation with optimized settings for performance
+    // Use STATIC layout (no animation) for instant performance
+    // Instead of expensive force simulation, position nodes in a grid within clusters
+    const nodesPerCluster: Map<string, ClusterNode[]> = new Map();
+    for (const node of clusterData.nodes) {
+      const existing = nodesPerCluster.get(node.cluster) ?? [];
+      existing.push(node);
+      nodesPerCluster.set(node.cluster, existing);
+    }
+
+    // Position nodes in a circle pattern around their cluster center
+    for (const [clusterName, nodes] of nodesPerCluster) {
+      const center = clusterMap.get(clusterName);
+      if (!center) continue;
+
+      const cx = center.x!;
+      const cy = center.y!;
+      const nodeCount = nodes.length;
+      const radius = 20 + nodeCount * 4; // Expand radius based on node count
+
+      nodes.forEach((node, i) => {
+        if (nodeCount === 1) {
+          node.x = cx;
+          node.y = cy;
+        } else {
+          const angle = (i / nodeCount) * 2 * Math.PI;
+          node.x = cx + radius * Math.cos(angle);
+          node.y = cy + radius * Math.sin(angle);
+        }
+      });
+    }
+
+    // Create minimal simulation just for collision avoidance (runs only a few ticks)
     simulation = d3
       .forceSimulation<ClusterNode>(clusterData.nodes)
-      .force('charge', d3.forceManyBody().strength(-30)) // Reduced strength
-      .force('center', d3.forceCenter(width / 2, height / 2).strength(0.03))
       .force(
         'collision',
         d3.forceCollide<ClusterNode>().radius((d) => getNodeRadius(d) + 2)
       )
-      .force(
-        'x',
-        d3.forceX<ClusterNode>((d) => clusterMap.get(d.cluster)?.x ?? width / 2).strength(0.2)
-      )
-      .force(
-        'y',
-        d3.forceY<ClusterNode>((d) => clusterMap.get(d.cluster)?.y ?? height / 2).strength(0.2)
-      )
-      .alphaDecay(0.05) // Faster decay = stops sooner
-      .velocityDecay(0.4); // More friction = smoother stop
+      .alphaDecay(0.5) // Extremely fast decay
+      .velocityDecay(0.8) // Very high friction
+      .alphaMin(0.5); // Stop almost immediately
 
     // Draw cluster labels
     const clusterLabels = g
@@ -169,7 +202,7 @@
       .attr('font-size', '10px')
       .text((d) => `${d.count} issue${d.count !== 1 ? 's' : ''}`);
 
-    // Draw nodes
+    // Draw nodes with accessibility attributes
     const nodes = g
       .selectAll('.node')
       .data(clusterData.nodes)
@@ -179,6 +212,9 @@
       .attr('fill', (d) => `#${d.color}`)
       .attr('stroke', '#1e293b')
       .attr('stroke-width', 2)
+      .attr('role', 'img')
+      .attr('aria-label', (d) => `Issue ${d.issue.number}: ${d.issue.title}, cluster: ${d.cluster}`)
+      .attr('tabindex', 0)
       .style('cursor', 'pointer')
       .on('mouseenter', (event, d) => {
         hoveredNode = d;
@@ -283,23 +319,27 @@
     svg.transition().duration(300).call(zoom.scaleBy, 0.67);
   }
 
-  // Reinitialize when issues change
+  // Reinitialize when issues change (debounced to prevent rapid reinits)
   $effect(() => {
     if (issues && issues.length > 0 && svgElement) {
-      initializeVisualization();
+      // Clear any pending initialization
+      if (initDebounceTimer) {
+        clearTimeout(initDebounceTimer);
+      }
+      // Debounce initialization by 100ms
+      initDebounceTimer = setTimeout(() => {
+        initializeVisualization();
+      }, 100);
     }
   });
 
   // Cleanup on destroy
   onDestroy(() => {
+    if (initDebounceTimer) {
+      clearTimeout(initDebounceTimer);
+    }
     if (simulation) {
       simulation.stop();
-    }
-  });
-
-  onMount(() => {
-    if (issues && issues.length > 0) {
-      initializeVisualization();
     }
   });
 </script>
@@ -385,9 +425,9 @@
     height: auto;
   }
 
-  /* Node styling - lightweight for performance */
+  /* Node styling - no transitions for performance */
   .cluster-svg :global(.node) {
-    transition: r 0.15s ease;
+    /* No transitions - critical for performance */
   }
 
   /* Simulation Running Indicator */
