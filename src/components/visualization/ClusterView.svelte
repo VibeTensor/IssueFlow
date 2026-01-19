@@ -108,23 +108,25 @@
       }
     }
 
-    // Create force simulation
+    // Create force simulation with optimized settings for performance
     simulation = d3
       .forceSimulation<ClusterNode>(clusterData.nodes)
-      .force('charge', d3.forceManyBody().strength(-50))
-      .force('center', d3.forceCenter(width / 2, height / 2).strength(0.05))
+      .force('charge', d3.forceManyBody().strength(-30)) // Reduced strength
+      .force('center', d3.forceCenter(width / 2, height / 2).strength(0.03))
       .force(
         'collision',
-        d3.forceCollide<ClusterNode>().radius((d) => getNodeRadius(d) + 4)
+        d3.forceCollide<ClusterNode>().radius((d) => getNodeRadius(d) + 2)
       )
       .force(
         'x',
-        d3.forceX<ClusterNode>((d) => clusterMap.get(d.cluster)?.x ?? width / 2).strength(0.3)
+        d3.forceX<ClusterNode>((d) => clusterMap.get(d.cluster)?.x ?? width / 2).strength(0.2)
       )
       .force(
         'y',
-        d3.forceY<ClusterNode>((d) => clusterMap.get(d.cluster)?.y ?? height / 2).strength(0.3)
-      );
+        d3.forceY<ClusterNode>((d) => clusterMap.get(d.cluster)?.y ?? height / 2).strength(0.2)
+      )
+      .alphaDecay(0.05) // Faster decay = stops sooner
+      .velocityDecay(0.4); // More friction = smoother stop
 
     // Draw cluster labels
     const clusterLabels = g
@@ -383,16 +385,9 @@
     height: auto;
   }
 
-  /* Node glow effect (applied via D3) */
+  /* Node styling - lightweight for performance */
   .cluster-svg :global(.node) {
-    filter: drop-shadow(0 0 3px currentColor);
-    transition:
-      filter 0.2s ease,
-      r 0.2s ease;
-  }
-
-  .cluster-svg :global(.node:hover) {
-    filter: drop-shadow(0 0 8px currentColor) drop-shadow(0 0 12px currentColor);
+    transition: r 0.15s ease;
   }
 
   /* Simulation Running Indicator */
@@ -481,7 +476,7 @@
     position: absolute;
     top: 12px;
     left: 12px;
-    background: rgba(15, 23, 42, 0.95);
+    background: rgba(15, 23, 42, 0.98);
     border: 1px solid rgba(71, 85, 105, 0.4);
     border-radius: 10px;
     padding: 10px;
@@ -489,7 +484,6 @@
     overflow-y: auto;
     z-index: 10;
     min-width: 150px;
-    backdrop-filter: blur(8px);
   }
 
   .legend-title {
@@ -537,7 +531,6 @@
     height: 12px;
     border-radius: 50%;
     flex-shrink: 0;
-    box-shadow: 0 0 6px currentColor;
   }
 
   .legend-name {
@@ -569,22 +562,7 @@
     max-width: 260px;
     z-index: 20;
     pointer-events: none;
-    backdrop-filter: blur(8px);
-    box-shadow:
-      0 4px 20px rgba(0, 0, 0, 0.4),
-      0 0 1px rgba(255, 255, 255, 0.1);
-    animation: tooltipFadeIn 0.15s ease-out;
-  }
-
-  @keyframes tooltipFadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(4px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 
   .tooltip-title {
