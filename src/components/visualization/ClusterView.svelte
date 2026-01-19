@@ -121,15 +121,15 @@
 
     // Use STATIC layout (no animation) for instant performance
     // Instead of expensive force simulation, position nodes in a grid within clusters
-    const nodesPerCluster: Map<string, ClusterNode[]> = new Map();
+    const nodesPerCluster: Record<string, ClusterNode[]> = {};
     for (const node of clusterData.nodes) {
-      const existing = nodesPerCluster.get(node.cluster) ?? [];
+      const existing = nodesPerCluster[node.cluster] ?? [];
       existing.push(node);
-      nodesPerCluster.set(node.cluster, existing);
+      nodesPerCluster[node.cluster] = existing;
     }
 
     // Position nodes in a circle pattern around their cluster center
-    for (const [clusterName, nodes] of nodesPerCluster) {
+    for (const [clusterName, nodes] of Object.entries(nodesPerCluster)) {
       const center = clusterMap.get(clusterName);
       if (!center) continue;
 
