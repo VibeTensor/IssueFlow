@@ -53,7 +53,7 @@ The following skills are available and should be used when applicable:
 
 **Example Usage:**
 
-```
+```bash
 # For PR code review
 /code-review
 
@@ -186,7 +186,7 @@ Actions:
 
 When you find relevant URLs, use WebFetch to extract key information:
 
-```
+```text
 Examples:
 - WebFetch official API docs for detailed method signatures
 - WebFetch library documentation for configuration options
@@ -199,7 +199,7 @@ Create research file immediately: `.internal/research/issue_XX_research.txt`
 
 CRITICAL: You MUST create a 9-phase plan for EVERY issue. This is NON-NEGOTIABLE.
 
-```
+```text
 Phase 1: Setup & Branch Creation
 Phase 2: Research & Audit Existing Code
 Phase 3: Identify Affected Files/Components
