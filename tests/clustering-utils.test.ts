@@ -9,7 +9,8 @@ import {
   getPrimaryLabel,
   calculateClusterPositions,
   getNodesInCluster,
-  getNodesBoundingBox
+  getNodesBoundingBox,
+  getClusterByName
 } from '../src/lib/clustering-utils';
 import type { GitHubIssue } from '../src/lib/github-graphql';
 
@@ -169,18 +170,61 @@ describe('clustering-utils', () => {
       expect(result).toEqual({ x: 0, y: 0, width: 0, height: 0 });
     });
 
-    it('calculates bounding box with padding', () => {
+    it('calculates bounding box with default padding of 50', () => {
       const nodes = [
         { id: '1', cluster: 'a', color: '000', issue: createMockIssue(1), x: 100, y: 100 },
         { id: '2', cluster: 'a', color: '000', issue: createMockIssue(2), x: 200, y: 200 }
       ];
 
-      const result = getNodesBoundingBox(nodes, 50);
+      // Test default padding (should be 50)
+      const result = getNodesBoundingBox(nodes);
 
       expect(result.x).toBe(50); // 100 - 50 padding
       expect(result.y).toBe(50); // 100 - 50 padding
       expect(result.width).toBe(200); // (200 + 50) - (100 - 50)
       expect(result.height).toBe(200);
+    });
+
+    it('calculates bounding box with custom padding', () => {
+      const nodes = [
+        { id: '1', cluster: 'a', color: '000', issue: createMockIssue(1), x: 100, y: 100 },
+        { id: '2', cluster: 'a', color: '000', issue: createMockIssue(2), x: 200, y: 200 }
+      ];
+
+      const result = getNodesBoundingBox(nodes, 20);
+
+      expect(result.x).toBe(80); // 100 - 20 padding
+      expect(result.y).toBe(80); // 100 - 20 padding
+      expect(result.width).toBe(140); // (200 + 20) - (100 - 20)
+      expect(result.height).toBe(140);
+    });
+  });
+
+  describe('getClusterByName', () => {
+    it('finds cluster by name', () => {
+      const clusters = [
+        { name: 'bug', color: 'ff0000', count: 5 },
+        { name: 'enhancement', color: '00ff00', count: 3 },
+        { name: 'documentation', color: '0000ff', count: 1 }
+      ];
+
+      const result = getClusterByName(clusters, 'enhancement');
+      expect(result).toEqual({ name: 'enhancement', color: '00ff00', count: 3 });
+    });
+
+    it('returns undefined for non-existent cluster', () => {
+      const clusters = [
+        { name: 'bug', color: 'ff0000', count: 5 },
+        { name: 'enhancement', color: '00ff00', count: 3 }
+      ];
+
+      const result = getClusterByName(clusters, 'nonexistent');
+      expect(result).toBeUndefined();
+    });
+
+    it('returns undefined for empty array', () => {
+      const result = getClusterByName([], 'bug');
+      expect(result).toBeUndefined();
     });
   });
 });
