@@ -35,7 +35,7 @@ This document defines procedures for managing AI chat transcripts to maintain pr
 
 ## What to Share vs. NOT Share
 
-### SAFE TO SHARE (Open Source Work Only)
+### SAFE TO SHARE (Open-Source Work Only)
 
 | Category            | Examples                           | Why Safe                  |
 | ------------------- | ---------------------------------- | ------------------------- |
@@ -103,15 +103,15 @@ done
 
 ### Recommended: Use Separate Project Folders
 
-```
-D:\Development\opensource\IssueFlow\     → Open source dev ONLY
+```text
+D:\Development\opensource\IssueFlow\     → Open-source dev ONLY
 E:\Personal\                             → Business, finance, personal
 D:\Work\ClientName\                      → Client work (NDA)
 ```
 
 ### How Claude Code Stores Transcripts
 
-```
+```text
 ~/.claude/projects/
 ├── D--Development-opensource-IssueFlow/    → IssueFlow chats
 ├── E--Personal/                            → Personal chats
