@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Nothing yet
+
+## [1.2.0] - 2026-01-20
+
+### Added
+
+- **Topic Cluster Visualization** (#154): D3-powered issue clustering by labels
+  - Bubble-chart visualization grouping issues by shared labels
+  - Server-side force simulation via Cloudflare Pages Function
+  - Smooth client-side animation and interactivity
+  - Click-to-filter: clicking a cluster filters results to that label
+  - Zoom controls (zoom in, zoom out, reset)
+  - Tooltip showing cluster details on hover
+  - Responsive canvas sizing with viewBox scaling
+  - Debounced resizing for performance
+  - ARIA live regions for accessibility
+  - Loading indicator with accessibility announcements
+  - CORS whitelist and input validation for security
+
+- **ExportMenu Accessibility Improvements** (#216): WCAG 2.1 compliance
+  - Proper focus management (focus trap within menu)
+  - aria-expanded and aria-haspopup attributes
+  - Screen reader announcements for export actions
+  - Keyboard navigation (arrow keys, Enter, Escape)
+  - Focus returns to trigger button on close
+
 - **Enhanced Dark Mode with Custom Themes** (#142): Multiple theme presets
   - 6 theme presets: Light, Dark, Midnight, Ocean, Forest, Sunset
   - Each dark theme has unique color palette (indigo, blue, green, orange)
@@ -112,6 +138,137 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Accessible with aria-live region (WCAG 2.1 4.1.3 compliant)
   - prefers-reduced-motion support
   - Teal gradient styling matching brand design
+
+- **Quick Actions Context Menu** (#139): Right-click actions for issues
+  - Copy issue link, open in new tab, bookmark options
+  - Context-aware positioning (viewport boundaries)
+  - Click-outside-to-close behavior
+  - Keyboard accessible with Escape to close
+
+- **Light/Dark Theme Toggle** (#180): Quick theme switching
+  - Floating toggle button in corner
+  - Smooth transition between themes
+  - localStorage persistence
+  - System preference detection
+
+- **Fade-in Animation for Issue Cards** (#183): Visual polish
+  - Staggered animation on search results load
+  - CSS-only implementation for performance
+  - prefers-reduced-motion support
+
+- **Shareable Search URLs** (#140): Link to search results
+  - Query parameters for repository and filters
+  - URL updates on search
+  - Direct linking to specific searches
+  - Browser back/forward navigation support
+
+- **Good First Issue Badge** (#181): Beginner-friendly indicators
+  - Visual badge for issues with beginner labels
+  - Recognizes common labels (good first issue, beginner, etc.)
+  - Integrated in IssueCard component
+
+- **Interactive Tag Cloud** (#137): Visual label exploration
+  - Animated tag cloud visualization
+  - Click to filter by label
+  - Size based on frequency
+  - Hover effects and tooltips
+
+- **Scroll-to-Top Button** (#178): Quick navigation
+  - Appears after scrolling down
+  - Smooth scroll animation
+  - Accessible button with aria-label
+
+- **Loading Skeleton Cards** (#172): Perceived performance
+  - Skeleton placeholder during search
+  - Shimmer animation effect
+  - Matches IssueCard layout
+
+- **Search Clear Button** (#177): Input UX improvement
+  - X button to clear search input
+  - Appears when input has value
+  - Focus remains on input after clear
+
+- **Interactive Issue Preview Card** (#125): Enhanced issue display
+  - Hover effects and animations
+  - Expandable details on click
+  - Smooth transitions
+
+- **Smart Search Sorting** (#122): Intelligent result ordering
+  - Relevance scoring algorithm
+  - Multiple sort options (date, comments, relevance)
+  - Visual sort indicators
+
+- **Advanced Search Filters** (#121): Boolean operators
+  - AND, OR, NOT operators
+  - Label-based filtering
+  - Date range filters
+  - Filter builder UI
+
+- **Keyboard Shortcut Hint** (#166): Discoverability
+  - Visual hint showing Enter key for search
+  - Appears in search input
+  - Accessible with aria-label
+
+- **Results Count Header** (#163): Search feedback
+  - Total issues found displayed in header
+  - Updates dynamically with filters
+  - Clear formatting with number separators
+
+- **Placeholder Examples** (#162): Onboarding help
+  - Example repository suggestions in placeholder
+  - Popular repos shown as hints
+  - Clickable to auto-fill input
+
+- **Save Last Repository** (#188): Convenience feature
+  - localStorage persistence of last search
+  - Auto-fills on page return
+  - Clear option available
+
+- **Copy Repository URL** (#161): Quick sharing
+  - Copy button next to repo input
+  - Visual feedback on copy
+  - Tooltip with action label
+
+- **ESC Key to Close Help Popup** (#160): Keyboard UX
+  - Global Escape key handler
+  - Closes help popup when open
+  - Focus management on close
+
+- **Search History Export** (#127): Data portability
+  - Export to JSON format
+  - Export to CSV format
+  - Download as file
+
+- **Search History** (#62): History tracking
+  - localStorage persistence
+  - Recent searches dropdown
+  - Quick re-search on click
+  - Delete individual entries
+
+- **Loading Progress with Cancel** (#23): Search control
+  - Progress indicator during search
+  - Status messages (fetching, processing)
+  - Cancel button to abort search
+
+### Changed
+
+- **Code Style Guide** (#196): Documentation for contributors
+  - TypeScript conventions
+  - Svelte 5 patterns
+  - Testing guidelines
+  - Formatting rules
+
+### Technical
+
+- **ESLint and Prettier Configuration** (#74): Code quality tooling
+- **TypeScript CI Check** (#50): Stricter type checking in CI
+- **EditorConfig** (#48): Consistent formatting across editors
+- **Security Policy** (#45): SECURITY.md with vulnerability reporting
+- **Hacktoberfest Labels** (#52): Community contribution support
+
+### Security
+
+- **h3 Request Smuggling Vulnerability** (GHSA-mp2g-9vg9-f4cg): Fixed dependency vulnerability
 
 ## [1.1.0] - 2025-11-30
 
@@ -260,20 +417,21 @@ This is the initial public release of IssueFlow, a tool designed to help develop
 Planned features for future releases:
 
 - [ ] Save favorite repositories
-- [ ] Advanced filtering options (labels, date ranges)
+- [x] Advanced filtering options (labels, date ranges) - Added in v1.2.0 (#153)
 - [ ] Browser extension
-- [ ] Dark/Light theme toggle
+- [x] Dark/Light theme toggle - Added in v1.2.0 (#142)
 - [ ] Issue bookmarking
 - [ ] Multi-repository search
 - [ ] GitHub trending integration
 - [ ] Contribution analytics
 - [ ] Keyboard shortcuts
 - [ ] Offline support (PWA)
-- [ ] Issue difficulty estimation
+- [x] Issue difficulty estimation - Added in v1.2.0 (#145, #152)
 
 ---
 
 For detailed information about changes in each version, see the [Git commit history](https://github.com/VibeTensor/IssueFlow/commits/master).
 
+[1.2.0]: https://github.com/VibeTensor/IssueFlow/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/VibeTensor/IssueFlow/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/VibeTensor/IssueFlow/releases/tag/v1.0.0
