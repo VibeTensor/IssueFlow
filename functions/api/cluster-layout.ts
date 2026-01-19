@@ -77,6 +77,32 @@ const UNCATEGORIZED_NAME = 'uncategorized';
 const DEFAULT_WIDTH = 800;
 const DEFAULT_HEIGHT = 600;
 const DEFAULT_MAX_NODES = 30;
+const MAX_NODES_LIMIT = 200;
+const MIN_SIZE = 200;
+const MAX_SIZE = 2000;
+const MAX_INPUT_ISSUES = 500;
+
+// Allowed origins for CORS (restrict to prevent abuse)
+const ALLOWED_ORIGINS = [
+  'https://issueflow.vibetensor.com',
+  'https://issueflow.pages.dev',
+  'http://localhost:4321',
+  'http://localhost:3000'
+];
+
+/**
+ * Get CORS headers for the given request origin
+ */
+function getCorsHeaders(request: Request): Record<string, string> {
+  const origin = request.headers.get('Origin');
+  const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  };
+}
 
 /**
  * Get primary label from issue
@@ -207,22 +233,59 @@ function computeClusterLayout(
  * Cloudflare Pages Function handler
  */
 export const onRequestPost: PagesFunction = async (context) => {
-  try {
-    const body = (await context.request.json()) as RequestBody;
+  const corsHeaders = getCorsHeaders(context.request);
 
+  // Parse JSON with explicit error handling
+  let body: RequestBody;
+  try {
+    body = (await context.request.json()) as RequestBody;
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON in request body' }), {
+      status: 400,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      }
+    });
+  }
+
+  try {
     if (!body.issues || !Array.isArray(body.issues)) {
       return new Response(JSON.stringify({ error: 'Missing or invalid issues array' }), {
         status: 400,
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
+          ...corsHeaders
         }
       });
     }
 
-    const width = body.width ?? DEFAULT_WIDTH;
-    const height = body.height ?? DEFAULT_HEIGHT;
-    const maxNodes = body.maxNodes ?? DEFAULT_MAX_NODES;
+    // Validate input array length to prevent abuse
+    if (body.issues.length > MAX_INPUT_ISSUES) {
+      return new Response(
+        JSON.stringify({
+          error: `Too many issues: ${body.issues.length}. Maximum allowed: ${MAX_INPUT_ISSUES}`
+        }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders
+          }
+        }
+      );
+    }
+
+    // Validate and clamp dimensions to prevent excessive processing
+    const width = Number.isFinite(body.width)
+      ? Math.min(Math.max(body.width!, MIN_SIZE), MAX_SIZE)
+      : DEFAULT_WIDTH;
+    const height = Number.isFinite(body.height)
+      ? Math.min(Math.max(body.height!, MIN_SIZE), MAX_SIZE)
+      : DEFAULT_HEIGHT;
+    const maxNodes = Number.isFinite(body.maxNodes)
+      ? Math.min(Math.max(body.maxNodes!, 1), MAX_NODES_LIMIT)
+      : DEFAULT_MAX_NODES;
 
     const layout = computeClusterLayout(body.issues, width, height, maxNodes);
 
@@ -230,7 +293,7 @@ export const onRequestPost: PagesFunction = async (context) => {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        ...corsHeaders,
         'Cache-Control': 'public, max-age=60' // Cache for 1 minute
       }
     });
@@ -241,7 +304,7 @@ export const onRequestPost: PagesFunction = async (context) => {
         status: 500,
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
+          ...corsHeaders
         }
       }
     );
@@ -251,13 +314,12 @@ export const onRequestPost: PagesFunction = async (context) => {
 /**
  * Handle CORS preflight requests
  */
-export const onRequestOptions: PagesFunction = async () => {
+export const onRequestOptions: PagesFunction = async (context) => {
+  const corsHeaders = getCorsHeaders(context.request);
   return new Response(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      ...corsHeaders,
       'Access-Control-Max-Age': '86400'
     }
   });

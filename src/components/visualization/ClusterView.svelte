@@ -358,11 +358,11 @@
       .style('cursor', 'pointer')
       .on('mouseenter', (event, d) => {
         hoveredNode = d;
-        const nodeX = d.x ?? 0;
-        const nodeY = d.y ?? 0;
+        // Use pointer coordinates for proper positioning with zoom/pan
+        const [px, py] = d3.pointer(event, svgElement);
         tooltipPosition = {
-          x: Math.min(nodeX + 20, width - 200),
-          y: Math.max(nodeY - 80, 20)
+          x: Math.min(px + 20, width - 200),
+          y: Math.max(py - 80, 20)
         };
         d3.select(event.target).attr('stroke', '#fff').attr('stroke-width', 3);
       })
@@ -424,9 +424,9 @@
     svg.transition().duration(300).call(zoom.scaleBy, 0.67);
   }
 
-  // Reinitialize when issues change (debounced to prevent rapid reinits)
+  // Reinitialize when issues or dimensions change (debounced to prevent rapid reinits)
   $effect(() => {
-    if (issues && issues.length > 0 && svgElement) {
+    if (issues && issues.length > 0 && svgElement && width && height) {
       // Clear any pending initialization
       if (initDebounceTimer) {
         clearTimeout(initDebounceTimer);
@@ -496,13 +496,13 @@
   <svg bind:this={svgElement} {width} {height} viewBox="0 0 {width} {height}" class="cluster-svg">
   </svg>
 
-  <!-- Loading Indicator -->
-  {#if isLoading}
-    <div class="loading-indicator">
-      <span class="pulse-dot"></span>
+  <!-- Loading Indicator (ARIA live region for accessibility) -->
+  <div class="loading-indicator" role="status" aria-live="polite" aria-atomic="true">
+    {#if isLoading}
+      <span class="pulse-dot" aria-hidden="true"></span>
       <span>{loadingMessage || 'Loading...'}</span>
-    </div>
-  {/if}
+    {/if}
+  </div>
 
   <!-- Tooltip (Dynamic Position) -->
   {#if hoveredNode}
@@ -538,7 +538,7 @@
     /* No transitions - critical for performance */
   }
 
-  /* Loading Indicator */
+  /* Loading Indicator (ARIA live region - always rendered for accessibility) */
   .loading-indicator {
     position: absolute;
     bottom: 12px;
@@ -553,6 +553,10 @@
     font-size: 12px;
     color: #94a3b8;
     z-index: 10;
+  }
+
+  .loading-indicator:empty {
+    display: none;
   }
 
   .pulse-dot {
