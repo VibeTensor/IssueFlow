@@ -8,15 +8,15 @@ Format: `<type>/<issue-number>-<short-description>`
 
 ### Branch Types
 
-| Type | Use For | Example |
-|------|---------|---------|
-| `feature/` | New features | `feature/50-dark-mode` |
-| `fix/` | Bug fixes | `fix/45-button-alignment` |
-| `docs/` | Documentation | `docs/197-git-workflow` |
-| `chore/` | Maintenance | `chore/52-add-labels` |
-| `refactor/` | Code restructuring | `refactor/35-components` |
-| `test/` | Test additions | `test/100-unit-tests` |
-| `a11y/` | Accessibility | `a11y/216-export-menu` |
+| Type        | Use For            | Example                   |
+| ----------- | ------------------ | ------------------------- |
+| `feature/`  | New features       | `feature/50-dark-mode`    |
+| `fix/`      | Bug fixes          | `fix/45-button-alignment` |
+| `docs/`     | Documentation      | `docs/197-git-workflow`   |
+| `chore/`    | Maintenance        | `chore/52-add-labels`     |
+| `refactor/` | Code restructuring | `refactor/35-components`  |
+| `test/`     | Test additions     | `test/100-unit-tests`     |
+| `a11y/`     | Accessibility      | `a11y/216-export-menu`    |
 
 ### Examples
 
@@ -38,16 +38,16 @@ refactor/35-component-architecture
 
 ### Commit Types
 
-| Type | Description | Example |
-|------|-------------|---------|
-| `[FEATURE]` | New functionality | `[FEATURE] Add dark mode toggle (#50)` |
-| `[FIX]` | Bug fix | `[FIX] Resolve button alignment (#45)` |
-| `[DOCS]` | Documentation | `[DOCS] Add Git Workflow Guide (#197)` |
-| `[CHORE]` | Maintenance | `[CHORE] Update dependencies (#100)` |
+| Type         | Description        | Example                                  |
+| ------------ | ------------------ | ---------------------------------------- |
+| `[FEATURE]`  | New functionality  | `[FEATURE] Add dark mode toggle (#50)`   |
+| `[FIX]`      | Bug fix            | `[FIX] Resolve button alignment (#45)`   |
+| `[DOCS]`     | Documentation      | `[DOCS] Add Git Workflow Guide (#197)`   |
+| `[CHORE]`    | Maintenance        | `[CHORE] Update dependencies (#100)`     |
 | `[REFACTOR]` | Code restructuring | `[REFACTOR] Simplify search logic (#80)` |
-| `[TEST]` | Test additions | `[TEST] Add unit tests (#90)` |
-| `[SECURITY]` | Security fixes | `[SECURITY] Fix vulnerability (#44)` |
-| `[A11Y]` | Accessibility | `[A11Y] Improve keyboard nav (#216)` |
+| `[TEST]`     | Test additions     | `[TEST] Add unit tests (#90)`            |
+| `[SECURITY]` | Security fixes     | `[SECURITY] Fix vulnerability (#44)`     |
+| `[A11Y]`     | Accessibility      | `[A11Y] Improve keyboard nav (#216)`     |
 
 ### Guidelines
 
@@ -55,6 +55,7 @@ refactor/35-component-architecture
 - - Keep first line under 72 characters
 - - Reference issue number with #
 - - Be specific about what changed
+
 ### Good Examples
 
 ```
@@ -87,6 +88,7 @@ git checkout -b <type>/<issue-number>-<description>
 - Write code following the style guide
 - - Test your changes locally
 - - Run linting and formatting
+
 ```bash
 npm run lint
 npm run format
@@ -155,12 +157,12 @@ gh pr merge <PR_NUMBER> --squash --delete-branch
 
 ### Why --merge?
 
-| Aspect | --merge (Required) | --squash (Forbidden) |
-|--------|-------------------|---------------------|
-| History | Preserves all commits | Loses commit history |
-| Git graph | Shows branch pattern | Linear, no branches |
-| Traceability | Can trace each change | Single combined commit |
-| Rollback | Easy per-commit revert | All-or-nothing revert |
+| Aspect       | --merge (Required)     | --squash (Forbidden)   |
+| ------------ | ---------------------- | ---------------------- |
+| History      | Preserves all commits  | Loses commit history   |
+| Git graph    | Shows branch pattern   | Linear, no branches    |
+| Traceability | Can trace each change  | Single combined commit |
+| Rollback     | Easy per-commit revert | All-or-nothing revert  |
 
 ### Verify Merge Pattern
 
@@ -171,6 +173,7 @@ git log --oneline --graph -5
 ```
 
 Expected pattern:
+
 ```
 *   abc1234 Merge pull request #XX from VibeTensor/branch-name
 |\
